@@ -25,8 +25,9 @@ stack_top:
 section .text
 _start:
 	mov esp,stack_top
+	push ebx		;multiboot boot information
 	push eax 		;multiboot magic
-	push ebx		;multiboot boot information 
+
 	call kernel_main
 
 	cli 			; should not be reached
