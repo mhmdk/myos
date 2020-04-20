@@ -3,6 +3,10 @@
 
 #include<stdint.h>
 #include"gdtentry.h"
+//segment selector is some flags + index, see intel's manual chapter 3.4.2
+static const uint16_t code_segment_selector=0x8;
+static const uint16_t data_segment_selector=0x10;
+static const uint16_t tss_segment_selector=0x18;
 
 typedef struct __attribute__((__packed__)) {
  
@@ -22,7 +26,7 @@ typedef struct {
   
 } GlobalDescriptorTable;
 
-GlobalDescriptorTable make_gdt();
+void fill_gdt(GlobalDescriptorTable*);
 void load_gdt(GlobalDescriptorTable*);
 
 

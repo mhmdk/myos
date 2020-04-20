@@ -4,9 +4,9 @@
 #include<stdint.h>
 
 //see intel developers manual , volume 3, chapter 3.3
-static const uint8_t PRESENT=1<<7;
-static const uint8_t PRIVILEGE_HIGH=1<<6;
-static const uint8_t PRIVILEGE_LOW=1<<5;
+static const uint8_t GDT_PRESENT=1<<7;
+static const uint8_t GDT_PRIVILEGE_HIGH=1<<6;
+static const uint8_t GDT_PRIVILEGE_LOW=1<<5;
 static const uint8_t CODE_OR_DATA=1<<4;
 static const uint8_t EXECUTABLE=1<<3;
 static const uint8_t DIRECTION_CONFORMING=1<<2;
