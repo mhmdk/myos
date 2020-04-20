@@ -1,5 +1,9 @@
 
-CFLAGS := -g -std=gnu99 -ffreestanding -nostdlib -O2 -Wall #-Wextra
+CFLAGS := -g -std=gnu99 -ffreestanding -nostdlib -O2 -Wall -mgeneral-regs-only  #-Wextra
+
+# -mgeneral-regs-only to avoid error in ISR functions, https://forum.osdev.org/viewtopic.php?f=1&t=32455
+
+
 CC := $(HOME)/opt/cross/bin/i686-elf-gcc
 
 PROJDIRS := $(shell pwd)
@@ -41,6 +45,5 @@ kernel.elf: $(OBJFILES) linker.ld makefile | $(TARGET)
 	nasm -felf32 $< -o $@
 
 $(TARGET):
-	if [[ ! -d $(TARGET)]]; do
-		mkdir $(TARGET)
-	done
+	if [[ ! -d $(TARGET) ]] ; then mkdir $(TARGET) ; fi
+
