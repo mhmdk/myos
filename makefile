@@ -1,4 +1,6 @@
 
+#based on https://wiki.osdev.org/Makefile
+
 CFLAGS := -g -std=gnu99 -ffreestanding -nostdlib -O2 -Wall -mgeneral-regs-only  #-Wextra
 
 # -mgeneral-regs-only to avoid error in ISR functions, https://forum.osdev.org/viewtopic.php?f=1&t=32455
@@ -14,9 +16,12 @@ HDRFILES := $(shell find $(PROJDIRS) -type f -name "*.h")
 OBJFILES := $(patsubst %.c,%.o,$(SRCFILES)) $(patsubst %.asm,%.o,$(ASMFILES))
 DEPFILES := $(patsubst %.c,%.d,$(SRCFILES))
 
-.PHONY: clean run test compile install 
+.PHONY: clean run test compile install all
 
 -include $(DEPFILES)
+
+all: clean compile
+	@echo all
 
 clean:
 	@echo cleaning
