@@ -1,0 +1,7 @@
+.cproject
+.gdbinit
+.project
+.settings
+*.d
+*.o
+*.elf
