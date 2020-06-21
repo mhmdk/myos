@@ -5,3 +5,6 @@
 *.d
 *.o
 *.elf
+target/
+isodir/
+Default/

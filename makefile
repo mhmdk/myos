@@ -1,7 +1,7 @@
 
 #based on https://wiki.osdev.org/Makefile
 
-CFLAGS := -g -std=gnu99 -ffreestanding -nostdlib -O2 -Wall -mgeneral-regs-only  #-Wextra
+CFLAGS := -I include -g -std=gnu99 -ffreestanding -nostdlib -O2 -Wall -mgeneral-regs-only  #-Wextra
 
 # -mgeneral-regs-only to avoid error in ISR functions, https://forum.osdev.org/viewtopic.php?f=1&t=32455
 
@@ -10,22 +10,24 @@ CC := $(HOME)/opt/cross/bin/i686-elf-gcc
 
 PROJDIRS := $(shell pwd)
 TARGET := target
-SRCFILES := $(shell find $(PROJDIRS) -type f -name "*.c")
-ASMFILES := $(shell find $(PROJDIRS) -type f -name "*.asm")
-HDRFILES := $(shell find $(PROJDIRS) -type f -name "*.h")
-OBJFILES := $(patsubst %.c,%.o,$(SRCFILES)) $(patsubst %.asm,%.o,$(ASMFILES))
-DEPFILES := $(patsubst %.c,%.d,$(SRCFILES))
+DEPS_TARGET := dependencies
+# find files as list of relative paths
+SRCFILES := $(shell find $(PROJDIRS) -type f -name "*.c" -printf '%P ')
+ASMFILES := $(shell find $(PROJDIRS) -type f -name "*.asm" -printf '%P ')
+HDRFILES := $(shell find $(PROJDIRS) -type f -name "*.h" -printf '%P ')
+OBJFILES := $(patsubst src/%.c,$(TARGET)/%.o,$(SRCFILES)) $(patsubst src/%.asm,$(TARGET)/%.o,$(ASMFILES))
+DEPFILES := $(patsubst %.o,%.d,$(OBJFILES))
 
 .PHONY: clean run test compile install all
 
 -include $(DEPFILES)
 
-all: clean compile
+all: clean install
 	@echo all
 
 clean:
 	@echo cleaning
-	rm -rf target
+	rm -rf $(TARGET)
 
 run:
 	@echo running
@@ -34,19 +36,20 @@ run:
 test:
 	@echo test #TODO
 
-install:
+install: compile
 	@echo installing
+	cp $(TARGET)/kernel.elf . 
 
-compile: kernel.elf
+compile: $(TARGET)/kernel.elf
 	@echo compiling
 
-kernel.elf: $(OBJFILES) linker.ld makefile | $(TARGET)
+$(TARGET)/kernel.elf: $(OBJFILES) linker.ld makefile
 	$(CC) $(CFLAGS) -T linker.ld -lgcc -o $@ $(OBJFILES) 
 
-%.o: %.c makefile
+$(TARGET)/%.o: src/%.c makefile | $(TARGET)
 	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
 
-%.o: %.asm makefile
+$(TARGET)/%.o: src/%.asm makefile | $(TARGET)
 	nasm -felf32 $< -o $@
 
 $(TARGET):
