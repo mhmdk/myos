@@ -28,6 +28,8 @@ SECTIONS
 	{
 		*(COMMON)
 		*(.bss)
+		*(.heap)
+		*(.stack)
 	}
  
 }

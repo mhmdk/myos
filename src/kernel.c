@@ -46,43 +46,50 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 	load_idt(&idt);
 
 	setup_pic(interrupts_offset, interrupts_offset + 8);
+	initialize_kmalloc();
+	Console console = new_console();
+	set_active_console(&console);
 	enable_interrupts();
 
-	Console console = { 0, 0 };
-	if (magic == MULTIBOOT_BOOTLOADER_MAGIC) {
-		print(&console, "MULTIBOOT_BOOTLOADER_MAGIC is CORRECT\n");
-	} else {
-		print(&console, "MULTIBOOT_BOOTLOADER_MAGIC is INCORRECT\n");
-	}
-	print(&console, "hello\n");
-
-	print(&console, "lower memory size : ");
-	print_hex(&console, multibootinfo->mem_lower);
-	print(&console, "\n");
-
-	print(&console, "upper memory size : ");
-	print_hex(&console, multibootinfo->mem_upper);
-	print(&console, "\n");
-
-	print(&console, "memory map length: ");
-	print_hex(&console, multibootinfo->mmap_length);
-	print(&console, "\n");
-
-	print(&console, "memory map structure address: ");
-	print_hex(&console, multibootinfo->mmap_addr);
-	print(&console, "\n");
+//	if (magic == MULTIBOOT_BOOTLOADER_MAGIC) {
+//		print(&console, "MULTIBOOT_BOOTLOADER_MAGIC is CORRECT\n");
+//	} else {
+//		print(&console, "MULTIBOOT_BOOTLOADER_MAGIC is INCORRECT\n");
+//	}
+//	print(&console,"console address: ");
+//	print_hex(&console,&console);
+//	print(&console,"buffer address: ");
+//		print_hex(&console,console.buffer);
+//
+//	print(&console, "hello\n");
+//
+//	print(&console, "lower memory size : ");
+//	print_hex(&console, multibootinfo->mem_lower);
+//	print(&console, "\n");
+//
+//	print(&console, "upper memory size : ");
+//	print_hex(&console, multibootinfo->mem_upper);
+//	print(&console, "\n");
+//
+//	print(&console, "memory map length: ");
+//	print_hex(&console, multibootinfo->mmap_length);
+//	print(&console, "\n");
+//
+//	print(&console, "memory map structure address: ");
+//	print_hex(&console, multibootinfo->mmap_addr);
+//	print(&console, "\n");
 
 	uint32_t offset = 0;
 	struct multiboot_mmap_entry *entry;
-	while (offset <multibootinfo->mmap_length) {
+	while (offset < multibootinfo->mmap_length) {
 		entry = (struct multiboot_mmap_entry*) (multibootinfo->mmap_addr
 				+ offset);
 		//a map of size:entry, so "size" does not include size of itself
-		offset += entry->size +sizeof(entry->size);
+		offset += entry->size + sizeof(entry->size);
 		//print(&console, "offset = ");
 		//print_hex(&console, offset);
 		//print(&console, "\n");
-		print_multiboot_memory_map_entry(&console, entry);
+		//print_multiboot_memory_map_entry(&console, entry);
 	}
 
 	while (1) {

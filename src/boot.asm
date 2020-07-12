@@ -19,10 +19,14 @@ align 4
 
 
 section .bss
-align 16			;stack on x86 must be 16-byte aligned according to the System V ABI standard
+
+section .heap nobits alloc  noexec  write
 kmalloc_pool_start:
-resb 16*1024
+resb 2*1024*1024
 kmalloc_pool_end:
+
+section .stack nobits alloc  noexec  write
+align 16			;stack on x86 must be 16-byte aligned according to the System V ABI standard
 stack_bottom:
 	resb 16*1024
 stack_top:
