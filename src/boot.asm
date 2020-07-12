@@ -1,5 +1,7 @@
 extern kernel_main
 global _start
+global kmalloc_pool_start
+global kmalloc_pool_end
 
 	;multiboot specification: https://www.gnu.org/software/grub/manual/multiboot/multiboot.html
 MEM_BOUNDARY_ALIGN  equ  1 << 0            
@@ -18,7 +20,10 @@ align 4
 
 section .bss
 align 16			;stack on x86 must be 16-byte aligned according to the System V ABI standard
-stack_bottom: 			;trick to use kernel bss as stack, this should probably be changed
+kmalloc_pool_start:
+resb 16*1024
+kmalloc_pool_end:
+stack_bottom:
 	resb 16*1024
 stack_top:
 

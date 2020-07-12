@@ -1,5 +1,7 @@
 #include<stdint.h>
 #include<stddef.h>
+
+#include "../include/kmalloc.h"
 #include "multiboot.h"
 #include "gdt.h"
 #include "idt.h"
@@ -15,6 +17,23 @@
 #error "not i386"
 #endif
 
+void print_multiboot_memory_map_entry(Console *console,
+		struct multiboot_mmap_entry *entry) {
+	print(console, "memory map entry: \n");
+//	print(console, "size: ");
+//	print_hex(console, entry->size);
+//	print(console, "\naddr high: ");
+//	print_hex(console, entry->addr >> 32);
+	print(console, "\naddr low: ");
+	print_hex(console, entry->addr);
+//	print(console, "\nlen high:");
+//	print_hex(console, entry->len >> 32);
+	print(console, "\nlen low:");
+	print_hex(console, entry->len);
+	print(console, "\ntype: ");
+	print_hex(console, entry->type);
+	print(console, "\n");
+}
 
 void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 
@@ -36,6 +55,35 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 		print(&console, "MULTIBOOT_BOOTLOADER_MAGIC is INCORRECT\n");
 	}
 	print(&console, "hello\n");
+
+	print(&console, "lower memory size : ");
+	print_hex(&console, multibootinfo->mem_lower);
+	print(&console, "\n");
+
+	print(&console, "upper memory size : ");
+	print_hex(&console, multibootinfo->mem_upper);
+	print(&console, "\n");
+
+	print(&console, "memory map length: ");
+	print_hex(&console, multibootinfo->mmap_length);
+	print(&console, "\n");
+
+	print(&console, "memory map structure address: ");
+	print_hex(&console, multibootinfo->mmap_addr);
+	print(&console, "\n");
+
+	uint32_t offset = 0;
+	struct multiboot_mmap_entry *entry;
+	while (offset <multibootinfo->mmap_length) {
+		entry = (struct multiboot_mmap_entry*) (multibootinfo->mmap_addr
+				+ offset);
+		//a map of size:entry, so "size" does not include size of itself
+		offset += entry->size +sizeof(entry->size);
+		//print(&console, "offset = ");
+		//print_hex(&console, offset);
+		//print(&console, "\n");
+		print_multiboot_memory_map_entry(&console, entry);
+	}
 
 	while (1) {
 		__asm__ ("hlt");

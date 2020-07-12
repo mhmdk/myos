@@ -24,6 +24,6 @@ typedef struct {
 } Console;
 
 void print( Console* const,  char* const);
-void append_to_console( Console* const,   char* const);
+void print_hex(Console *const console, uint32_t number) ;
 
 #endif

@@ -47,6 +47,8 @@ $(TARGET)/kernel.elf: $(OBJFILES) linker.ld makefile
 	$(CC) $(CFLAGS) -T linker.ld -lgcc -o $@ $(OBJFILES) 
 
 $(TARGET)/%.o: src/%.c makefile | $(TARGET)
+	target_subdir=$$(dirname $@);\
+	if [[ ! -d $$target_subdir ]] ; then mkdir $$target_subdir ; fi
 	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
 
 $(TARGET)/%.o: src/%.asm makefile | $(TARGET)
