@@ -60,6 +60,7 @@ void* kmalloc(uint32_t size) {
 		print_hex(&console, &kmalloc_pool_start);
 		print(&console, "\n start: ");
 		print_hex(&console, (uint32_t)&_start);
+
 		return header + 1;
 
 	} else {

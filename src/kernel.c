@@ -1,7 +1,8 @@
 #include<stdint.h>
 #include<stddef.h>
 
-#include "../include/kmalloc.h"
+#include "kmalloc.h"
+#include"drivers/keyboard.h"
 #include "multiboot.h"
 #include "gdt.h"
 #include "idt.h"
@@ -49,6 +50,7 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 	initialize_kmalloc();
 	Console console = new_console();
 	set_active_console(&console);
+	init_keyboard();
 	enable_interrupts();
 
 //	if (magic == MULTIBOOT_BOOTLOADER_MAGIC) {
@@ -92,8 +94,12 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 		//print_multiboot_memory_map_entry(&console, entry);
 	}
 
+
+
 	while (1) {
 		__asm__ ("hlt");
 	}
 
 }
+
+
