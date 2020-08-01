@@ -3,20 +3,27 @@
 #include"console.h"
 #include"ports.h"
 #include"common/bitmap.h"
+#include"kmalloc.h"
 //TODO this should be removed , it was used for tracing purposes
 #include"keyboard_layout.h"
+
+BitMap keyboard_state;
+uint8_t numlock = 0;
+uint8_t capslock = 0;
+uint8_t scrolllock = 0;
+uint8_t *keyboard_buffer;
 
 static const uint16_t ps2_controller_data_port = 0x60;
 static const uint16_t ps2_controller_command_port = 0x64;
 
 static uint8_t e0_prefix = 0;
 static uint8_t _bitmap_data[256 / 8] = { 0 };
-static const uint32_t BUFFER_SIZE = 1024 * 1024;
-
-BitMap keyboard_state;
-uint8_t *keyboard_buffer;
+static const uint32_t BUFFER_SIZE = 1024 * 16;
 static uint32_t buffer_read_index = 0;
 static uint32_t buffer_write_index = 0;
+
+void _toggle_lock_states(uint8_t keycode);
+void _command_to_keyboard(uint8_t command);
 
 void init_keyboard() {
 	outb(ps2_controller_command_port, 0xAD);		//disable first PS/2 port
@@ -76,9 +83,9 @@ void handle_keyboard_interrupt() {
 			print(&console, "\n");
 			print_hex(&console, keycode);
 			print(&console, "\n");
-			char s[2]="0";
-			s[0]=character_from_keycode(keycode);
-			print(&console,s );
+			char s[2] = "0";
+			s[0] = character_from_keycode(keycode);
+			print(&console, s);
 
 		} else {
 			print(&console, "released\n");
@@ -90,6 +97,7 @@ void handle_keyboard_interrupt() {
 			if (pressed) {
 				set_key_pressed(keycode);
 				add_keycode_to_buffer(keycode);
+				_toggle_lock_states(keycode);
 			} else {
 				set_key_released(keycode);
 			}
@@ -127,6 +135,29 @@ void add_keycode_to_buffer(uint8_t key) {
 	buffer_write_index++;
 	if (buffer_write_index >= BUFFER_SIZE) {
 		buffer_write_index %= BUFFER_SIZE;
+	}
+}
+uint8_t is_numlock_on(){
+	return numlock;
+}
+uint8_t is_capslock_on(){
+	return capslock;
+}
+uint8_t is_scrolllock_on(){
+	return scrolllock;
+}
+
+
+void _toggle_lock_states(uint8_t keycode) {
+	switch (keycode) {
+	case KEY_CAPSLOCK:
+		capslock ^= 1;
+		break;
+	case KEY_NUMLOCK:
+		numlock ^= 1;
+		break;
+	case KEY_SCROLL_LOCK:
+		scrolllock ^= 1;
 	}
 }
 

@@ -16,6 +16,9 @@ void set_key_released(uint8_t keycode);
 uint8_t is_valid_key(uint8_t keycode);
 uint8_t read_keycode_from_buffer();
 void add_keycode_to_buffer(uint8_t key);
+uint8_t is_numlock_on();
+uint8_t is_capslock_on();
+uint8_t is_scrolllock_on();
 
 
 static const uint8_t scancode_set1_keycode[KEYMAP_SIZE]={
