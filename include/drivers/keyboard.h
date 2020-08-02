@@ -8,6 +8,7 @@ void init_keyboard();
 void handle_keyboard_interrupt();
 
 #define KEYMAP_SIZE 0x80
+static const uint8_t NO_CHAR_READ = 255;
 
 void _command_to_keyboard(uint8_t command);
 uint8_t is_key_pressed(uint8_t keycode);

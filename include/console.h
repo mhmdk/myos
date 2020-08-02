@@ -27,5 +27,6 @@ void print_to_current_active( char* const);
 void print(Console* const, char* const);
 void print_hex(Console *const console, uint32_t number);
 void set_active_console(Console*);
+void putch(Console *const console, char c);
 
 #endif

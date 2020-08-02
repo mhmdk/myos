@@ -56,8 +56,8 @@ void init_keyboard() {
 }
 
 void handle_keyboard_interrupt() {
-	Console console = { 5, 0 };
-	set_active_console(&console);
+//	Console console = { 5, 0 };
+//	set_active_console(&console);
 
 	uint8_t scancode = inb(ps2_controller_data_port);
 	uint8_t keycode;
@@ -77,22 +77,23 @@ void handle_keyboard_interrupt() {
 			keycode = scancode_set1_keycode[scancode];
 		}
 
-		if (pressed) {
-			print(&console, "pressed\n");
-			print_hex(&console, scancode);
-			print(&console, "\n");
-			print_hex(&console, keycode);
-			print(&console, "\n");
-			char s[2] = "0";
-			s[0] = character_from_keycode(keycode);
-			print(&console, s);
+//		if (pressed) {
+//			print(&console, "pressed\n");
+//			print_hex(&console, scancode);
+//			print(&console, "\n");
+//			print_hex(&console, keycode);
+//			print(&console, "\n");
+//			char s[2] = "0";
+//			s[0] = character_from_keycode(keycode);
+//			print(&console, s);
+//
+//		} else {
+//			print(&console, "released\n");
+//			print_hex(&console, scancode);
+//			print(&console, "\n");
+//			print_hex(&console, keycode);
+//		}
 
-		} else {
-			print(&console, "released\n");
-			print_hex(&console, scancode);
-			print(&console, "\n");
-			print_hex(&console, keycode);
-		}
 		if (is_valid_key(keycode)) {
 			if (pressed) {
 				set_key_pressed(keycode);
@@ -123,7 +124,7 @@ uint8_t is_valid_key(uint8_t keycode) {
 
 uint8_t read_keycode_from_buffer() {
 	if (buffer_read_index == buffer_write_index) {
-		return -1; //nothing to read
+		return NO_CHAR_READ; //nothing to read
 	}
 	char c = keyboard_buffer[buffer_read_index];
 	++buffer_read_index;

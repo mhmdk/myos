@@ -48,38 +48,39 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 
 	setup_pic(interrupts_offset, interrupts_offset + 8);
 	initialize_kmalloc();
-	Console console = new_console();
-	set_active_console(&console);
 	init_keyboard();
 	enable_interrupts();
 
-//	if (magic == MULTIBOOT_BOOTLOADER_MAGIC) {
-//		print(&console, "MULTIBOOT_BOOTLOADER_MAGIC is CORRECT\n");
-//	} else {
-//		print(&console, "MULTIBOOT_BOOTLOADER_MAGIC is INCORRECT\n");
-//	}
-//	print(&console,"console address: ");
-//	print_hex(&console,&console);
-//	print(&console,"buffer address: ");
-//		print_hex(&console,console.buffer);
-//
-//	print(&console, "hello\n");
-//
-//	print(&console, "lower memory size : ");
-//	print_hex(&console, multibootinfo->mem_lower);
-//	print(&console, "\n");
-//
-//	print(&console, "upper memory size : ");
-//	print_hex(&console, multibootinfo->mem_upper);
-//	print(&console, "\n");
-//
-//	print(&console, "memory map length: ");
-//	print_hex(&console, multibootinfo->mmap_length);
-//	print(&console, "\n");
-//
-//	print(&console, "memory map structure address: ");
-//	print_hex(&console, multibootinfo->mmap_addr);
-//	print(&console, "\n");
+	Console console = new_console();
+	set_active_console(&console);
+
+	if (magic == MULTIBOOT_BOOTLOADER_MAGIC) {
+		print(&console, "MULTIBOOT_BOOTLOADER_MAGIC is CORRECT\n");
+	} else {
+		print(&console, "MULTIBOOT_BOOTLOADER_MAGIC is INCORRECT\n");
+	}
+	print(&console, "console address: ");
+	print_hex(&console, &console);
+	print(&console, "\n");
+	print(&console, "buffer address: ");
+	print_hex(&console, console.buffer);
+	print(&console, "\n");
+
+	print(&console, "lower memory size : ");
+	print_hex(&console, multibootinfo->mem_lower);
+	print(&console, "\n");
+
+	print(&console, "upper memory size : ");
+	print_hex(&console, multibootinfo->mem_upper);
+	print(&console, "\n");
+
+	print(&console, "memory map length: ");
+	print_hex(&console, multibootinfo->mmap_length);
+	print(&console, "\n");
+
+	print(&console, "memory map structure address: ");
+	print_hex(&console, multibootinfo->mmap_addr);
+	print(&console, "\n");
 
 	uint32_t offset = 0;
 	struct multiboot_mmap_entry *entry;
@@ -88,18 +89,25 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 				+ offset);
 		//a map of size:entry, so "size" does not include size of itself
 		offset += entry->size + sizeof(entry->size);
-		//print(&console, "offset = ");
-		//print_hex(&console, offset);
-		//print(&console, "\n");
-		//print_multiboot_memory_map_entry(&console, entry);
+//		print(&console, "offset = ");
+//		print_hex(&console, offset);
+//		print(&console, "\n");
+//		print_multiboot_memory_map_entry(&console, entry);
 	}
-
-
-
 	while (1) {
 		__asm__ ("hlt");
+		uint8_t keycode = read_keycode_from_buffer();
+		if (keycode != NO_CHAR_READ) {
+			char c = character_from_keycode(keycode);
+			if (c == 0) {
+				putch(&console,'~');
+			} else {
+				//printable char
+				putch(&console,c);
+			}
+
+		}
 	}
 
 }
-
 

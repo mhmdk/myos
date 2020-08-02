@@ -22,8 +22,8 @@ Console new_console() {
 void set_active_console(Console *console) {
 	active_console = console;
 }
-void print_to_current_active(char *const s){
-	print(active_console,s);
+void print_to_current_active(char *const s) {
+	print(active_console, s);
 }
 
 void print(Console *const console, char *const s) {
@@ -32,6 +32,12 @@ void print(Console *const console, char *const s) {
 	if (active_console == console) {
 		_copy_to_screen(console);
 	}
+}
+
+void putch(Console *const console, char c) {
+	char s[2] = { 0, 0 };
+	s[0] = c;
+	print(console, s);
 }
 
 void print_hex(Console *const console, uint32_t number) {
@@ -65,6 +71,8 @@ void _append_to_console(Console *const console, char *const s) {
 			}
 			console->current_row++;
 			console->current_column = 0;
+		} else if (s[string_index] == '\t') {
+			_append_to_console(console, "    ");
 		} else {
 			uint16_t console_buffer_index = console->current_row * SCREEN_WIDTH
 					+ console->current_column;

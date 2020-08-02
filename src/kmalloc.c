@@ -37,29 +37,29 @@ void* kmalloc(uint32_t size) {
 		AllocationHeader *header = (AllocationHeader*) ((uint32_t)(&kmalloc_pool_start)
 				+ first_chunk_index * CHUNK_SIZE);
 		header->number_of_chunks = needed_chunks;
-		Console console = { 0, 0, SCREEN_BUFFER };
-		//set_active_console(&console);
-		print(&console, "allocated: ");
-		print_hex(&console, allocated_memory);
-		print(&console, "\nfree: ");
-		print_hex(&console, free_memory);
-		print(&console, "\nallocated size: ");
-		print_hex(&console, total_size);
-		print(&console, "\nneeded chunks: ");
-		print_hex(&console, needed_chunks);
-		print(&console, "\nfirst chunk: ");
-		print_hex(&console, first_chunk_index);
-		print(&console, "\nheader: ");
-		print_hex(&console, (uint32_t) header);
-		print(&console, "\nheader+1: ");
-		print_hex(&console, (uint32_t) (header + 1));
-		print(&console, "\nsizeof allocatinmap: ");
-		print_hex(&console, sizeof(allocation_map));
 
-		print(&console, "\npool start: ");
-		print_hex(&console, &kmalloc_pool_start);
-		print(&console, "\n start: ");
-		print_hex(&console, (uint32_t)&_start);
+//		Console console = { 0, 0, SCREEN_BUFFER };
+//		print(&console, "allocated: ");
+//		print_hex(&console, allocated_memory);
+//		print(&console, "\nfree: ");
+//		print_hex(&console, free_memory);
+//		print(&console, "\nallocated size: ");
+//		print_hex(&console, total_size);
+//		print(&console, "\nneeded chunks: ");
+//		print_hex(&console, needed_chunks);
+//		print(&console, "\nfirst chunk: ");
+//		print_hex(&console, first_chunk_index);
+//		print(&console, "\nheader: ");
+//		print_hex(&console, (uint32_t) header);
+//		print(&console, "\nheader+1: ");
+//		print_hex(&console, (uint32_t) (header + 1));
+//		print(&console, "\nsizeof allocatinmap: ");
+//		print_hex(&console, sizeof(allocation_map));
+//
+//		print(&console, "\npool start: ");
+//		print_hex(&console, &kmalloc_pool_start);
+//		print(&console, "\n start: ");
+//		print_hex(&console, (uint32_t)&_start);
 
 		return header + 1;
 
