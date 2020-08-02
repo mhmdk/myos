@@ -1,5 +1,6 @@
 #include"console.h"
 #include"kmalloc.h"
+#include"drivers/vga.h"
 #include"kernel_libc/string.h"
 
 void _hex_format(uint32_t number, char *s);
