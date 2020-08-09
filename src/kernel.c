@@ -2,14 +2,15 @@
 #include<stddef.h>
 
 #include "kmalloc.h"
+#include"keyboard_layout.h"
 #include"drivers/keyboard.h"
+#include"drivers/vga.h"
 #include "multiboot.h"
 #include "gdt.h"
 #include "idt.h"
 #include "interrupts.h"
 #include "pic.h"
 #include"console.h"
-#include"keyboard_layout.h"
 
 #if defined(__linux__)
 #error "compiling for linux"
@@ -19,22 +20,21 @@
 #error "not i386"
 #endif
 
-void print_multiboot_memory_map_entry(Console *console,
-		struct multiboot_mmap_entry *entry) {
-	print(console, "memory map entry: \n");
+void print_multiboot_memory_map_entry(struct multiboot_mmap_entry *entry) {
+	print("memory map entry: \n");
 //	print(console, "size: ");
 //	print_hex(console, entry->size);
 //	print(console, "\naddr high: ");
 //	print_hex(console, entry->addr >> 32);
-	print(console, "\naddr low: ");
-	print_hex(console, entry->addr);
+	print("\naddr low: ");
+	print_hex(entry->addr);
 //	print(console, "\nlen high:");
 //	print_hex(console, entry->len >> 32);
-	print(console, "\nlen low:");
-	print_hex(console, entry->len);
-	print(console, "\ntype: ");
-	print_hex(console, entry->type);
-	print(console, "\n");
+	print("\nlen low:");
+	print_hex(entry->len);
+	print("\ntype: ");
+	print_hex(entry->type);
+	print("\n");
 }
 
 void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
@@ -51,38 +51,30 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 	initialize_kmalloc();
 	init_keyboard();
 	init_vga();
+	init_console();
 	enable_interrupts();
 
-	Console console = new_console();
-	set_active_console(&console);
-
 	if (magic == MULTIBOOT_BOOTLOADER_MAGIC) {
-		print(&console, "MULTIBOOT_BOOTLOADER_MAGIC is CORRECT\n");
+		print("MULTIBOOT_BOOTLOADER_MAGIC is CORRECT\n");
 	} else {
-		print(&console, "MULTIBOOT_BOOTLOADER_MAGIC is INCORRECT\n");
+		print("MULTIBOOT_BOOTLOADER_MAGIC is INCORRECT\n");
 	}
-	print(&console, "console address: ");
-	print_hex(&console, &console);
-	print(&console, "\n");
-	print(&console, "buffer address: ");
-	print_hex(&console, console.buffer);
-	print(&console, "\n");
 
-	print(&console, "lower memory size : ");
-	print_hex(&console, multibootinfo->mem_lower);
-	print(&console, "\n");
+	print("lower memory size : ");
+	print_hex(multibootinfo->mem_lower);
+	print("\n");
 
-	print(&console, "upper memory size : ");
-	print_hex(&console, multibootinfo->mem_upper);
-	print(&console, "\n");
+	print("upper memory size : ");
+	print_hex(multibootinfo->mem_upper);
+	print("\n");
 
-	print(&console, "memory map length: ");
-	print_hex(&console, multibootinfo->mmap_length);
-	print(&console, "\n");
+	print("memory map length: ");
+	print_hex(multibootinfo->mmap_length);
+	print("\n");
 
-	print(&console, "memory map structure address: ");
-	print_hex(&console, multibootinfo->mmap_addr);
-	print(&console, "\n");
+	print("memory map structure address: ");
+	print_hex(multibootinfo->mmap_addr);
+	print("\n");
 
 	uint32_t offset = 0;
 	struct multiboot_mmap_entry *entry;
@@ -91,25 +83,38 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 				+ offset);
 		//a map of size:entry, so "size" does not include size of itself
 		offset += entry->size + sizeof(entry->size);
-//		print(&console, "offset = ");
-//		print_hex(&console, offset);
-//		print(&console, "\n");
-//		print_multiboot_memory_map_entry(&console, entry);
+
+		print("offset = ");
+		print_hex(offset);
+		print("\n");
+		print_multiboot_memory_map_entry(entry);
 	}
 	while (1) {
 		__asm__ ("hlt");
 		uint8_t keycode = read_keycode_from_buffer();
-		if (keycode != NO_CHAR_READ) {
+		if (keycode == NO_CHAR_READ) {
+			continue;
+		} else if (keycode == KEY_PAGEUP|| keycode == KEY_KEYPAD_9) {
+			page_up();
+		} else if (keycode == KEY_PAGEDOWN|| keycode == KEY_KEYPAD_3) {
+			page_down();
+		} else if (keycode == KEY_DOWN_ARROW|| keycode == KEY_KEYPAD_2) {
+			scroll_down(1);
+		} else if (keycode == KEY_UP_ARROW|| keycode == KEY_KEYPAD_8) {
+			scroll_up(1);
+		} else {
 			char c = character_from_keycode(keycode);
 			if (c == 0) {
-				putch(&console,'~');
+				putchar('~');
 			} else {
 				//printable char
-				putch(&console,c);
+				scroll_to_cursor();
+				putchar(c);
 			}
-
 		}
-	}
 
+	}
 }
+
+
 

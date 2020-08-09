@@ -3,6 +3,8 @@
 
 #include<stdint.h>
 
-void* memset(void *ptr, uint8_t value,uint32_t size);
+void* memset(void *ptr, uint8_t value, uint32_t size);
+void* memcpy(void *destination, const  void *source, uint32_t num);
+int strlen(char *s);
 
 #endif

@@ -7,8 +7,7 @@
 //where it is mapped to decide whether to acknowledge_from_slave or not
 
 __attribute__((interrupt)) void dummy_isr(void *unused) {
-	Console console = { 3, 0 };
-	print(&console, "got timer interrupt  \n");
+	//print( "got timer interrupt  \n");
 
 	__asm__("nop");
 	acknowledge_interupt_from_master();

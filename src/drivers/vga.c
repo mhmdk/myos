@@ -1,5 +1,6 @@
 #include "drivers/vga.h"
 #include "ports.h"
+#include"kernel_libc/string.h"
 
 void _enable_cursor();
 void _setup_crtc_address();
@@ -11,12 +12,22 @@ void init_vga() {
 }
 
 void set_cursor_position(uint16_t x, uint16_t y) {
-	uint16_t position = y * SCREEN_WIDTH + x;
+	uint16_t position = x * SCREEN_WIDTH + y;
 
 	outb(CRTC_ADDRESS_PORT, CURSOR_LOCATION_LOW_REGISTER_INDEX);
 	outb(CRTC_DATA_PORT, (uint8_t) (position & 0xFF));
 	outb(CRTC_ADDRESS_PORT, CURSOR_LOCATION_HIGH_REGISTER_INDEX);
 	outb(CRTC_DATA_PORT, (uint8_t) ((position >> 8) & 0xFF));
+
+	//if black foreground,set it to white
+	if ((SCREEN_BUFFER[position] & 0x0F00) == 0) {
+		SCREEN_BUFFER[position] |= 0x0F00;
+	}
+}
+
+void clear_screen() {
+	memset((uint16_t*) SCREEN_BUFFER, BLACK_ON_BLACK,
+			SCREEN_WIDTH * SCREEN_HIGHT * sizeof(uint16_t));
 }
 
 void _enable_cursor() {

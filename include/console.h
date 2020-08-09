@@ -4,20 +4,28 @@
 #include<stdint.h>
 // https://wiki.osdev.org/Printing_To_Screen
 
-
 typedef struct {
-	uint8_t current_row;
-	uint8_t current_column;
+	uint16_t number_of_rows;
+	uint16_t number_of_columns;
+	uint16_t used_rows;
+	uint16_t output_row;
+	uint16_t output_column;
+	uint16_t cursor_row;
+	uint16_t cursor_column;
 	uint16_t *buffer;
 
 } Console;
 
-Console new_console();
-void print_to_current_active( char* const);
-void print(Console* const, char* const);
-void print_hex(Console *const console, uint32_t number);
-void set_active_console(Console*);
-void putch(Console *const console, char c);
-
+void init_console();
+void print(char* const);
+void print_hex(uint32_t number);
+void putchar(char c);
+void clear_console();
+void page_up();
+void page_down();
+void scroll_down(int rows);
+void scroll_up(int rows);
+void scroll_to_cursor();
+void scroll_to_row(int row);
 
 #endif

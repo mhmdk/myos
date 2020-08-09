@@ -14,7 +14,7 @@ static uint8_t allocation_map[POOL_SIZE / (CHUNK_SIZE * 8)];
 static uint32_t free_memory = POOL_SIZE;
 static uint32_t allocated_memory = 0;
 static BitMap bitmap;
-uint32_t _first_fit(BitMap *bitmap, uint32_t number_of_chunks);
+uint32_t _first_fit(BitMap *bitmap, const uint32_t number_of_chunks);
 
 void initialize_kmalloc() {
 	memset(allocation_map, 0, sizeof(allocation_map));
@@ -25,17 +25,17 @@ void initialize_kmalloc() {
 void* kmalloc(uint32_t size) {
 	uint32_t total_size = size + sizeof(AllocationHeader);
 	//round up to multiple of chunk size
-	total_size += (total_size + CHUNK_SIZE - 1) % CHUNK_SIZE;
-	uint32_t needed_chunks = total_size / CHUNK_SIZE;
+	uint32_t needed_chunks = (total_size+CHUNK_SIZE-1) / CHUNK_SIZE;
 	uint32_t first_chunk_index = _first_fit(&bitmap, needed_chunks);
 	if (first_chunk_index >= 0) {
-		for (uint32_t i = first_chunk_index; i < needed_chunks; i++) {
+		for (uint32_t i = first_chunk_index; i < first_chunk_index+needed_chunks; i++) {
 			bitmap_set(&bitmap, i);
 		}
 		allocated_memory += total_size;
 		free_memory -= total_size;
-		AllocationHeader *header = (AllocationHeader*) ((uint32_t)(&kmalloc_pool_start)
-				+ first_chunk_index * CHUNK_SIZE);
+		AllocationHeader *header =
+				(AllocationHeader*) ((uint32_t) (&kmalloc_pool_start)
+						+ first_chunk_index * CHUNK_SIZE);
 		header->number_of_chunks = needed_chunks;
 
 //		Console console = { 0, 0, SCREEN_BUFFER };
@@ -74,8 +74,8 @@ void kfree(void *ptr) {
 	}
 	AllocationHeader *header = (AllocationHeader*) ((uint8_t*) ptr
 			- sizeof(AllocationHeader*));
-	uint32_t starting_chunk = ((uint32_t) (header) - (uint32_t)&kmalloc_pool_start)
-			/ CHUNK_SIZE;
+	uint32_t starting_chunk = ((uint32_t) (header)
+			- (uint32_t) &kmalloc_pool_start) / CHUNK_SIZE;
 	for (uint32_t chunk = starting_chunk; chunk < header->number_of_chunks;
 			chunk++) {
 		bitmap_unset(&bitmap, chunk);
@@ -86,11 +86,11 @@ void kfree(void *ptr) {
 
 }
 
-uint32_t _first_fit(BitMap *bitmap, uint32_t number_of_chunks) {
+uint32_t _first_fit(BitMap *bitmap, const uint32_t number_of_chunks) {
 	uint32_t chunk = 0;
 	uint32_t current_consecurive_free = 0;
 	while (chunk < bitmap->size) {
-		while (!bitmap_get(bitmap, chunk)
+		while ((!bitmap_get(bitmap, chunk))
 				&& current_consecurive_free < number_of_chunks) {
 			current_consecurive_free++;
 			chunk++;

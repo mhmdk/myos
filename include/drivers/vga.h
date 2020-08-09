@@ -32,5 +32,6 @@ static uint8_t const BLACK_ON_BLACK = BLACK | (BLACK << 4);
 
 void init_vga();
 void set_cursor_position(uint16_t x, uint16_t y);
+void clear_screen();
 
 #endif /* INCLUDE_DRIVERS_VGA_H_ */
