@@ -107,6 +107,7 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 			if (c == 0) {
 				putchar('~');
 			} else {
+				//what about backspace??
 				//printable char
 				scroll_to_cursor();
 				putchar(c);

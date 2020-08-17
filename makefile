@@ -1,7 +1,7 @@
 
 #based on https://wiki.osdev.org/Makefile
 
-CFLAGS := -I include -g -std=gnu99 -ffreestanding -nostdlib -O2 -Wall -mgeneral-regs-only  #-Wextra
+CFLAGS := -I include -g -std=gnu99 -ffreestanding -nostdlib -O1 -Wall -mgeneral-regs-only  #-Wextra
 
 # -mgeneral-regs-only to avoid error in ISR functions, https://forum.osdev.org/viewtopic.php?f=1&t=32455
 

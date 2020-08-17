@@ -25,8 +25,8 @@ void init_console() {
 	active_console->number_of_rows = SCREEN_HIGHT * 3;
 
 	active_console->buffer = (uint16_t*) kmalloc(
-			(uint32_t)active_console->number_of_rows * active_console->number_of_columns
-					* sizeof(uint16_t));
+			(uint32_t) active_console->number_of_rows
+					* active_console->number_of_columns * sizeof(uint16_t));
 
 	clear_console();
 	clear_screen();
@@ -52,6 +52,14 @@ void clear_console() {
 	active_console->cursor_row = 0;
 	active_console->cursor_column = 0;
 	active_console->used_rows = 1;
+}
+
+void _clear_current_row() {
+	memset(
+			active_console->buffer
+					+ active_console->output_row
+							* active_console->number_of_columns, BLACK_ON_BLACK,
+			active_console->number_of_columns * sizeof(uint16_t));
 }
 
 void print_hex(uint32_t number) {
@@ -92,10 +100,10 @@ void scroll_down(int rows) {
 
 void scroll_up(int rows) {
 	int beginning = _buffer_beginning();
-	int max_possible_scroll = _circular_diff(beginning-1,
+	int max_possible_scroll = _circular_diff(beginning,
 			active_console->output_row, active_console->number_of_rows);
-	//because beginning at the top, where output_row is at the buttom
-	max_possible_scroll -= SCREEN_HIGHT;
+	//because beginning at the top, where output_row is at the bottom
+	max_possible_scroll -= SCREEN_HIGHT - 1;
 	if (max_possible_scroll <= 0) {
 		return;
 	}
@@ -183,11 +191,11 @@ void _increment_column() {
 
 void _increment_row() {
 	active_console->output_row++;
-
+	_check_last_row();
+	_clear_current_row();
 	if (active_console->used_rows < active_console->number_of_rows) {
 		active_console->used_rows++;
 	}
-	_check_last_row();
 }
 
 void _check_last_column() {
@@ -213,8 +221,8 @@ int _get_console_buffer_index(Console *active_console) {
 }
 
 int _buffer_beginning() {
-	return _circular_diff(active_console->cursor_row, active_console->used_rows-1,
-			active_console->number_of_rows);
+	return _circular_diff(active_console->used_rows - 1,
+			active_console->cursor_row, active_console->number_of_rows);
 }
 
 int _circular_diff(int beginning, int end, int modulus) {

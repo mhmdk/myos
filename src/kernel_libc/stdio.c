@@ -1,7 +1,9 @@
 #include"kernel_libc/stdio.h"
+#include"kernel_libc/string.h"
+#include"keyboard_layout.h"
 #include"drivers/keyboard.h"
-#include"drivers/vga.h"
 #include"console.h"
+
 
 char* gets(char *s) {
 	int index = 0;

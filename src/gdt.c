@@ -45,6 +45,7 @@ void __reload_data_segment_registers(){
   //per multiboot specifications those segments have offset 0 originally
   //so we are not really changing anything
   //otherwise we have to deal with a messed up stack??
+	//TODO this is causing if compiler option  -O0  is specified
   __asm__("push %%EAX\n\t"
 	  "mov %0,%%AX\n\t"
 	  "mov %%AX,%%DS\n\t"
@@ -53,4 +54,6 @@ void __reload_data_segment_registers(){
 	  "mov %%AX,%%GS\n\t"
 	  "mov %%AX,%%SS\n\t"
 	  "pop %%EAX"::"n"(data_segment_selector));
+
+ // __asm__("nop");
 }
