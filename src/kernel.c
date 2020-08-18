@@ -11,6 +11,7 @@
 #include "interrupts.h"
 #include "pic.h"
 #include"console.h"
+#include"terminal.h"
 
 #if defined(__linux__)
 #error "compiling for linux"
@@ -37,6 +38,33 @@ void print_multiboot_memory_map_entry(struct multiboot_mmap_entry *entry) {
 	print("\n");
 }
 
+void print_memory_map(multiboot_info_t *multibootinfo) {
+	print("lower memory size : ");
+	print_hex(multibootinfo->mem_lower);
+	print("\n");
+	print("upper memory size : ");
+	print_hex(multibootinfo->mem_upper);
+	print("\n");
+	print("memory map length: ");
+	print_hex(multibootinfo->mmap_length);
+	print("\n");
+	print("memory map structure address: ");
+	print_hex(multibootinfo->mmap_addr);
+	print("\n");
+	uint32_t offset = 0;
+	struct multiboot_mmap_entry *entry;
+	while (offset < multibootinfo->mmap_length) {
+		entry = (struct multiboot_mmap_entry*) (multibootinfo->mmap_addr
+				+ offset);
+		//a map of size:entry, so "size" does not include size of itself
+		offset += entry->size + sizeof(entry->size);
+		print("offset = ");
+		print_hex(offset);
+		print("\n");
+		print_multiboot_memory_map_entry(entry);
+	}
+}
+
 void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 
 	GlobalDescriptorTable gdt;
@@ -59,61 +87,12 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 	} else {
 		print("MULTIBOOT_BOOTLOADER_MAGIC is INCORRECT\n");
 	}
+	print_memory_map(multibootinfo);
 
-	print("lower memory size : ");
-	print_hex(multibootinfo->mem_lower);
-	print("\n");
+	terminal_main();
 
-	print("upper memory size : ");
-	print_hex(multibootinfo->mem_upper);
-	print("\n");
-
-	print("memory map length: ");
-	print_hex(multibootinfo->mmap_length);
-	print("\n");
-
-	print("memory map structure address: ");
-	print_hex(multibootinfo->mmap_addr);
-	print("\n");
-
-	uint32_t offset = 0;
-	struct multiboot_mmap_entry *entry;
-	while (offset < multibootinfo->mmap_length) {
-		entry = (struct multiboot_mmap_entry*) (multibootinfo->mmap_addr
-				+ offset);
-		//a map of size:entry, so "size" does not include size of itself
-		offset += entry->size + sizeof(entry->size);
-
-		print("offset = ");
-		print_hex(offset);
-		print("\n");
-		print_multiboot_memory_map_entry(entry);
-	}
 	while (1) {
 		__asm__ ("hlt");
-		uint8_t keycode = read_keycode_from_buffer();
-		if (keycode == NO_CHAR_READ) {
-			continue;
-		} else if (keycode == KEY_PAGEUP|| keycode == KEY_KEYPAD_9) {
-			page_up();
-		} else if (keycode == KEY_PAGEDOWN|| keycode == KEY_KEYPAD_3) {
-			page_down();
-		} else if (keycode == KEY_DOWN_ARROW|| keycode == KEY_KEYPAD_2) {
-			scroll_down(1);
-		} else if (keycode == KEY_UP_ARROW|| keycode == KEY_KEYPAD_8) {
-			scroll_up(1);
-		} else {
-			char c = character_from_keycode(keycode);
-			if (c == 0) {
-				putchar('~');
-			} else {
-				//what about backspace??
-				//printable char
-				scroll_to_cursor();
-				putchar(c);
-			}
-		}
-
 	}
 }
 

@@ -5,6 +5,7 @@
 
 void _hex_format(uint32_t number, char *s);
 void _append_to_console(char *const s);
+void _remove_char_from_console();
 int _get_console_buffer_index(Console*);
 void _copy_to_screen();
 void _increment_row();
@@ -34,6 +35,11 @@ void init_console() {
 
 void print(char *const s) {
 	_append_to_console(s);
+	_copy_to_screen();
+}
+
+void erase_char() {
+	_remove_char_from_console();
 	_copy_to_screen();
 }
 
@@ -162,6 +168,7 @@ void _copy_to_screen() {
 	}
 
 }
+
 void _append_to_console(char *const s) {
 	uint16_t string_index = 0;
 	while (s[string_index] != 0) {
@@ -180,6 +187,32 @@ void _append_to_console(char *const s) {
 		}
 		string_index++;
 	}
+	active_console->cursor_column = active_console->output_column;
+	active_console->cursor_row = active_console->output_row;
+}
+
+void _remove_char_from_console() {
+
+	active_console->output_column--;
+	if (active_console->output_column < 0) {
+		//should check if beginning instead
+		if (active_console->used_rows> 0) {
+			active_console->output_row--;
+			if(active_console->output_row<0){
+				active_console->output_row=active_console->number_of_rows-1;
+			}
+			active_console->used_rows--;
+			//or   the string length of the previous row
+			active_console->output_column = active_console->number_of_columns
+					- 1;
+		} else {
+			active_console->output_column = 0;
+		}
+	}
+
+	int console_buffer_index = _get_console_buffer_index(active_console);
+	active_console->buffer[console_buffer_index] = _make_vga_char(' ');
+
 	active_console->cursor_column = active_console->output_column;
 	active_console->cursor_row = active_console->output_row;
 }
