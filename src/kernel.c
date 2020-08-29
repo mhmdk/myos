@@ -5,6 +5,7 @@
 #include"keyboard_layout.h"
 #include"drivers/keyboard.h"
 #include"drivers/vga.h"
+#include"drivers/ata.h"
 #include "multiboot.h"
 #include "gdt.h"
 #include "idt.h"
@@ -65,6 +66,21 @@ void print_memory_map(multiboot_info_t *multibootinfo) {
 	}
 }
 
+void test_ata_driver() {
+	char *data = "0123456789\n";
+	int write_count = ata_write(data, 0, 20, 11);
+	print("written");
+	print_hex(write_count);
+	print("bytes\n");
+	char *buffer = (char*) kmalloc(20);
+	buffer[12] = 0;
+	int read_count = ata_read(buffer, 0, 20, 11);
+	print("read ");
+	print_hex(read_count);
+	print("bytes\n");
+	print(buffer);
+}
+
 void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 
 	GlobalDescriptorTable gdt;
@@ -80,14 +96,16 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 	init_keyboard();
 	init_vga();
 	init_console();
+	ata_detect();
 	enable_interrupts();
 
+	test_ata_driver();
 	if (magic == MULTIBOOT_BOOTLOADER_MAGIC) {
 		print("MULTIBOOT_BOOTLOADER_MAGIC is CORRECT\n");
 	} else {
 		print("MULTIBOOT_BOOTLOADER_MAGIC is INCORRECT\n");
 	}
-	print_memory_map(multibootinfo);
+	//print_memory_map(multibootinfo);
 
 	terminal_main();
 
@@ -95,6 +113,4 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 		__asm__ ("hlt");
 	}
 }
-
-
 

@@ -20,7 +20,14 @@ __attribute__((interrupt)) void isr_01_keyboard(void *unused) {
 	//acknowledge only from master because keyboard interrupt (IRQ offset+1) comes from master
 	acknowledge_interupt_from_master();
 }
-
+__attribute__((interrupt)) void isr_14_ata(void* unused){
+	print( "got ata  interrupt  from primary bus\n");
+	acknowledge_interupt_from_slave();
+}
+__attribute__((interrupt)) void isr_15_ata(void* unused){
+	print( "got ata  interrupt  from secondary bus\n");
+	acknowledge_interupt_from_slave();
+}
 void enable_interrupts() {
 	__asm__ ("sti");
 }

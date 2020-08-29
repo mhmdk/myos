@@ -20,6 +20,8 @@ void fill_idt(InterruptDescriptorTable *idt) {
 
 	set_interrupt_handler(interrupts_offset + 0, (uint32_t) dummy_isr);
 	set_interrupt_handler(interrupts_offset + 1, (uint32_t) isr_01_keyboard);
+	set_interrupt_handler(interrupts_offset + 14, (uint32_t) isr_14_ata);
+	set_interrupt_handler(interrupts_offset + 15, (uint32_t) isr_15_ata);
 
 	idt->adderess = entries;
 	//size = 8*N -1 where 8 is the size of one descriptor

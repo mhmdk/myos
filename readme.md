@@ -2,8 +2,12 @@
 ## on manjaro: ##
 intalled  xorriso and mtools for grub-mkrescue
 
+## run from command line: ##
+qemu-system-x86_64 -machine pc -kernel kernel.elf [-hda hda.img]
+where hda.img is a disk image file 
+
 ## debugging from command line: ##
-qemu-system-x86_64 -machine q35 -kernel kernel.elf -s -S
+qemu-system-x86_64 -machine pc -kernel kernel.elf -s -S [-hda hda.img]
 
 gdb kernel.elf
 set arch i386:x86-64
