@@ -10,5 +10,6 @@ int strlen(const char *s);
 int strcmp(const char *s1, const char*s2);
 int strspn(const char *str, const char *seps);
 const char * strchr ( const char * str, int character );
+char* strcpy(char* destination, const char* source);
 
 #endif

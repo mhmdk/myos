@@ -12,7 +12,9 @@
 #include "interrupts.h"
 #include "pic.h"
 #include"console.h"
+#include "filesystem/filesystem.h"
 #include"terminal.h"
+#include"common/dllist.h"
 
 #if defined(__linux__)
 #error "compiling for linux"
@@ -81,6 +83,15 @@ void test_ata_driver() {
 	print(buffer);
 }
 
+void print_directory_entry(void *arg) {
+	DirectoryEntry *entry = (DirectoryEntry*) arg;
+	entry->name[11] = 0;
+	print(entry->name);
+	print("\n");
+	print_hex(entry->attributes);
+	print("\n");
+}
+
 void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 
 	GlobalDescriptorTable gdt;
@@ -99,7 +110,25 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 	ata_detect();
 	enable_interrupts();
 
-	test_ata_driver();
+	init_filesystem();
+
+	FAT32File *root = fat32_get_root_directory(volumes[0].filesystem);
+	List *dirlist = fat32_list_directory(volumes[0].filesystem, root);
+	dllist_for_each(dirlist, print_directory_entry);
+	dllist_free(&dirlist);
+	dirlist = 0;
+
+	root = fat32_get_root_directory(volumes[1].filesystem);
+	dirlist = fat32_list_directory(volumes[1].filesystem, root);
+	dllist_for_each(dirlist, print_directory_entry);
+	dllist_free(&dirlist);
+	dirlist = 0;
+//ignore warning , this is a private method and should not be called here
+	dirlist = _path_tokens("a/dir1/file1");
+	dllist_for_each(dirlist, print);
+	dllist_free(&dirlist);
+	dirlist = 0;
+//test_ata_driver();
 	if (magic == MULTIBOOT_BOOTLOADER_MAGIC) {
 		print("MULTIBOOT_BOOTLOADER_MAGIC is CORRECT\n");
 	} else {

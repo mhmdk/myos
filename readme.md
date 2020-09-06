@@ -31,3 +31,26 @@ target remote localhost:1234
 
 ## making an iso ##
 see makeiso.sh
+
+## making a partitioned image for testing ##
+# the following will make a disk image with dos partition table, and two fat32 formatted partitions
+
+based on https://wiki.osdev.org/Loopback_Device#Partitioning
+
+dd if=/dev/zero of=hda.img bs=512 count=8064 
+sudo losetup /dev/loop0 hda.img #may need "modprobe loop" before it
+fdisk /dev/loop0
+# do fdisk partitioning, pay attension to partition type : FAT32=0x0c
+partprobe /dev/loop0 # to tell the kernel about partition table change, now /dev/loop0p1 and p2 should appear
+mkdosfs -F32 -v /dev/loop0p1
+mkdosfs -F32 -v /dev/loop0p2
+
+or:
+sudo losetup  -o 512  --sizelimit 2080256 /dev/loop1 hda.img  # 2080256 = 4063*512
+mkdosfs -F32 -v /dev/loop1 #warning  Not enough clusters for a 32 bit FAT! may be emmited
+sudo losetup  -o 512  --sizelimit 2080768 /dev/loop2 hda.img  # 2080768 = 4064*512 
+mkdosfs -F32 -v /dev/loop2
+
+
+
+
