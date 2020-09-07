@@ -20,7 +20,7 @@ void dllist_insert_at_head(List **head, void *data) {
 		return;
 	}
 	(*head)->prev = newNode;
-	newNode->next = head;
+	newNode->next = *head;
 	*head = newNode;
 }
 

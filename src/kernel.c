@@ -123,6 +123,13 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 	dllist_for_each(dirlist, print_directory_entry);
 	dllist_free(&dirlist);
 	dirlist = 0;
+
+	FAT32File *file = fat32_open_file(volumes[1].filesystem, root, "FILE-P2");
+	print("file in partition 2 \n");
+	print(file->name);
+	print("\n");
+	print_hex(file->address);
+	print("\n");
 //ignore warning , this is a private method and should not be called here
 	dirlist = _path_tokens("a/dir1/file1");
 	dllist_for_each(dirlist, print);

@@ -13,6 +13,7 @@ static const uint32_t FREE_CLUSTER=0x00;
 
 static const uint8_t DELETED_DIRECTORY_ENTRY = 0xE5;
 static const uint8_t DOT_DIRECTORY_ENTRY =0x2E;
+static const uint8_t LONG_FILENAME_DIRECTORY_ATTRIBUTES =0x0F;
 
 typedef struct {
 	// DOS2BiosParameterBlock
@@ -78,23 +79,22 @@ typedef struct {
 	VolumeBootRecord vbr;
 } FAT32FileSystem;
 
-FAT32FileSystem* make_fat32filesystem(PartitionEntry *partition);
-
 typedef struct File_{
-char path[128];
+char name[128];
 struct File_ *parent_directory;
 uint32_t  address; // starting cluster
 }FAT32File;
 
+FAT32FileSystem* make_fat32filesystem(PartitionEntry *partition);
 FAT32File* fat32_get_root_directory(FAT32FileSystem *filesystem);
-FAT32File* fat32_open_file(FAT32FileSystem *filesystem, char *path);
-FAT32File* fat32_get_root_directory(FAT32FileSystem *filesystem);
+FAT32File* fat32_open_file(FAT32FileSystem *filesystem, FAT32File *parent_directory,char *name);
 List* fat32_list_directory(FAT32FileSystem *filesystem, FAT32File *directory);
-int fat32_read_from_file(FAT32File *file, char *buffer,  int number_of_bytes,
+int fat32_read_from_file(FAT32FileSystem *filesystem,FAT32File *file, char *buffer,  int number_of_bytes,
 		int offset);
-int fat32_write_to_file(FAT32File *file, char *buffer,  int number_of_bytes,
+int fat32_write_to_file(FAT32FileSystem *filesystem,FAT32File *file, char *buffer,  int number_of_bytes,
 		int offset);
-int fat32_create_directory(char *name, FAT32File *parent_directory);
-int fat32_delete_file(FAT32File *file);
+int fat32_create_directory(FAT32FileSystem *filesystem,char *name, FAT32File *parent_directory);
+int fat32_create_file(FAT32FileSystem *filesystem,char *name, FAT32File *parent_directory);
+int fat32_delete_file(FAT32FileSystem *filesystem,FAT32File *file);
 
 #endif

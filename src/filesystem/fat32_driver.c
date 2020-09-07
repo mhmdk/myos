@@ -4,8 +4,6 @@
 #include"kernel_libc/string.h"
 #include"kmalloc.h"
 
-int _read_cluster(FAT32FileSystem *filesystem, int cluster, uint8_t *buffer);
-int _write_cluster(FAT32FileSystem *filesystem, int cluster, uint8_t *buffer);
 int _table_first_sector(FAT32FileSystem *filesystem);
 int _is_end_of_chain(int next_cluster);
 int _is_data_cluster(int next_cluster);
@@ -19,6 +17,8 @@ uint32_t _next_cluster(FAT32FileSystem *filesystem, int cluster);
 void _read_into_cache(FAT32FileSystem *filesystem, int sector);
 int _is_end_of_chain(int next_cluster);
 int _is_data_cluster(int next_cluster);
+uint32_t _cluster_of_directory_entry(DirectoryEntry *entry);
+void _strip_space_padding(char *stripped_name);
 
 FAT32FileSystem* make_fat32filesystem(PartitionEntry *partition) {
 	FAT32FileSystem *filesystem = (FAT32FileSystem*) kmalloc(
@@ -39,56 +39,142 @@ Cache cache;
 FAT32File* fat32_get_root_directory(FAT32FileSystem *filesystem) {
 	FAT32File *file = (FAT32File*) kmalloc(sizeof(FAT32File));
 	file->parent_directory = 0;
-	strcpy(file->path, "/");
+	strcpy(file->name, "/");
 	file->address = filesystem->vbr.bpm.root_cluster;
 	return file;
 }
 
 List* fat32_list_directory(FAT32FileSystem *filesystem, FAT32File *directory) {
 	int directories_per_sector = BYTES_PER_SECTOR / sizeof(DirectoryEntry);
-	DirectoryEntry *entries = kmalloc(directories_per_sector);
 	List *directory_list = 0;
-	int starting_sector = _first_sector_of_cluster(filesystem,
-			directory->address);
-	ata_read((char*) entries, 0,
-			filesystem->partition->lba_frist_sector + starting_sector, 512);
+	int current_cluster = directory->address;
+	DirectoryEntry *entries = kmalloc(
+			directories_per_sector * sizeof(DirectoryEntry));
+	int end_of_records = 0;
+	while (!end_of_records && _is_data_cluster(current_cluster)) {
+		int starting_sector = _first_sector_of_cluster(filesystem,
+				current_cluster);
+		for (int sector_index = 0;
+				sector_index < filesystem->vbr.bpm.sectors_per_cluster
+						&& !end_of_records; sector_index++) {
+			int sector = filesystem->partition->lba_frist_sector
+					+ starting_sector + sector_index;
+			ata_read((char*) entries, 0, sector, BYTES_PER_SECTOR);
 
-	for (int i = 0; i < directories_per_sector && entries[i].name[0] != 0;
-			i++) {
-		if ((uint8_t) entries[i].name[0] != DELETED_DIRECTORY_ENTRY
-				&& entries[i].name[0] != DOT_DIRECTORY_ENTRY) {
-			DirectoryEntry *tmp = (DirectoryEntry*) kmalloc(
-					sizeof(DirectoryEntry));
-			memcpy(tmp, &entries[i], sizeof(DirectoryEntry));
-			dllist_insert_at_tail(&directory_list, tmp);
+			for (int i = 0; i < directories_per_sector && !end_of_records;
+					i++) {
+				if (entries[i].name[0] == 0) {
+					end_of_records = 1;
+				} else if ((uint8_t) entries[i].name[0]
+						!= DELETED_DIRECTORY_ENTRY
+						&& entries[i].name[0] != DOT_DIRECTORY_ENTRY
+						&& entries[i].attributes
+								!= LONG_FILENAME_DIRECTORY_ATTRIBUTES) {
+					DirectoryEntry *tmp = (DirectoryEntry*) kmalloc(
+							sizeof(DirectoryEntry));
+					memcpy(tmp, &entries[i], sizeof(DirectoryEntry));
+					dllist_insert_at_tail(&directory_list, tmp);
+				}
+			}
 		}
+
+		current_cluster = _next_cluster(filesystem, current_cluster);
 	}
+
 	kfree(entries);
 	return directory_list;
 }
 
-FAT32File* fat32_open_file(FAT32FileSystem *filesystem, char *path) {
-	return 0;
-}
-int fat32_read_from_file(FAT32File *file, char *buffer, int number_of_bytes,
-		int offset) {
-	return 0;
-}
-int fat32_write_to_file(FAT32File *file, char *buffer, int number_of_bytes,
-		int offset) {
-	return 0;
-}
-int fat32_create_directory(char *name, FAT32File *parent_directory) {
-	return 0;
-}
-int fat32_delete_file(FAT32File *file) {
-	return 0;
+FAT32File* fat32_open_file(FAT32FileSystem *filesystem,
+		FAT32File *parent_directory, char *name) {
+	FAT32File *file = 0;
+
+	int directories_per_sector = BYTES_PER_SECTOR / sizeof(DirectoryEntry);
+	int current_cluster = parent_directory->address;
+	DirectoryEntry *entries = kmalloc(
+			directories_per_sector * sizeof(DirectoryEntry));
+	int done = 0;
+	while (!done && _is_data_cluster(current_cluster)) {
+
+		int starting_sector = _first_sector_of_cluster(filesystem,
+				current_cluster);
+		for (int sector_index = 0;
+				sector_index < filesystem->vbr.bpm.sectors_per_cluster && !done;
+				sector_index++) {
+			int sector = filesystem->partition->lba_frist_sector
+					+ starting_sector + sector_index;
+			ata_read((char*) entries, 0, sector, BYTES_PER_SECTOR);
+
+			for (int i = 0; i < directories_per_sector && !done; i++) {
+				if (entries[i].name[0] == 0) {
+					done = 1;
+				} else if ((uint8_t) entries[i].name[0]
+						!= DELETED_DIRECTORY_ENTRY
+						&& entries[i].name[0] != DOT_DIRECTORY_ENTRY
+						&& entries[i].attributes
+								!= LONG_FILENAME_DIRECTORY_ATTRIBUTES) {
+
+					char stripped_name[12];
+					memcpy(stripped_name, entries[i].name, 11);
+					_strip_space_padding(stripped_name);
+					if (!strcmp(stripped_name, name)) {
+						file = (FAT32File*) kmalloc(sizeof(FAT32File));
+						file->address = _cluster_of_directory_entry(
+								&entries[i]);
+						file->parent_directory = parent_directory;
+						strcpy(file->name, name);
+						done = 1;
+					}
+				}
+			}
+		}
+
+		current_cluster = _next_cluster(filesystem, current_cluster);
+	}
+	kfree(entries);
+	return file;
 }
 
-int _read_cluster(FAT32FileSystem *filesystem, int cluster, uint8_t *buffer) {
+int fat32_read_from_file(FAT32FileSystem *filesystem, FAT32File *file,
+		char *buffer, int number_of_bytes, int offset) {
+	int read_bytes = 0;
+	int current_cluster = file->address;
+
+	while (_is_data_cluster(current_cluster) && read_bytes < number_of_bytes) {
+
+		int starting_sector = _first_sector_of_cluster(filesystem,
+				current_cluster);
+		for (int sector_index = 0;
+				sector_index < filesystem->vbr.bpm.sectors_per_cluster
+						&& read_bytes < number_of_bytes; sector_index++) {
+			int sector = filesystem->partition->lba_frist_sector
+					+ starting_sector + sector_index;
+			int bytes_to_read = number_of_bytes - read_bytes;
+			if (bytes_to_read > BYTES_PER_SECTOR) {
+				bytes_to_read = BYTES_PER_SECTOR;
+			}
+			ata_read(buffer + read_bytes, 0, sector, bytes_to_read);
+			read_bytes += bytes_to_read;
+		}
+
+		current_cluster = _next_cluster(filesystem, current_cluster);
+	}
+
+	return read_bytes;
+}
+int fat32_write_to_file(FAT32FileSystem *filesystem, FAT32File *file,
+		char *buffer, int number_of_bytes, int offset) {
 	return 0;
 }
-int _write_cluster(FAT32FileSystem *filesystem, int cluster, uint8_t *buffer) {
+int fat32_create_directory(FAT32FileSystem *filesystem, char *name,
+		FAT32File *parent_directory) {
+	return 0;
+}
+int fat32_create_file(FAT32FileSystem *filesystem, char *name,
+		FAT32File *parent_directory) {
+	return 0;
+}
+int fat32_delete_file(FAT32FileSystem *filesystem, FAT32File *file) {
 	return 0;
 }
 
@@ -160,5 +246,14 @@ int _is_end_of_chain(int next_cluster) {
 int _is_data_cluster(int next_cluster) {
 	return (next_cluster & 0x0FFFFFFF) > 1
 			&& (next_cluster & 0x0FFFFFFF) < 0x0FFFFFF0;
+}
+uint32_t _cluster_of_directory_entry(DirectoryEntry *entry) {
+	return (uint32_t) entry->cluster_low
+			| ((uint32_t) entry->cluster_high) << 16;
+}
+void _strip_space_padding(char *stripped_name) {
+	for (int i = 10; i > 0 && stripped_name[i] == ' '; i--) {
+		stripped_name[i] = 0;
+	}
 }
 
