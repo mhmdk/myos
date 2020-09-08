@@ -1,5 +1,5 @@
 #include"filesystem/fat32_driver.h"
-#include"filesystem/filesystem.h"
+
 #include"drivers/ata.h"
 #include"kernel_libc/string.h"
 #include"kmalloc.h"
@@ -141,7 +141,6 @@ int fat32_read_from_file(FAT32FileSystem *filesystem, FAT32File *file,
 	int current_cluster = file->address;
 
 	while (_is_data_cluster(current_cluster) && read_bytes < number_of_bytes) {
-
 		int starting_sector = _first_sector_of_cluster(filesystem,
 				current_cluster);
 		for (int sector_index = 0;
@@ -219,8 +218,8 @@ uint32_t _next_cluster(FAT32FileSystem *filesystem, int cluster) {
 	if (cluster > _total_clusters(filesystem)) {
 		return BAD_CLUSTER;
 	}
-	int fat_sector = (uint32_t) filesystem->partition->lba_frist_sector
-			+ _table_first_sector(filesystem)
+	//relative to beginning of partition
+	int fat_sector = _table_first_sector(filesystem)
 			+ ((cluster * 4) / BYTES_PER_SECTOR);
 	uint32_t fat_offset = (cluster * 4) % 512;
 	_read_into_cache(filesystem, fat_sector);
@@ -231,11 +230,10 @@ uint32_t _next_cluster(FAT32FileSystem *filesystem, int cluster) {
 }
 
 void _read_into_cache(FAT32FileSystem *filesystem, int sector) {
-	if (cache.sector_number != sector) {
-		ata_read((char*) cache.buffer, 0,
-				filesystem->partition->lba_frist_sector + sector,
-				BYTES_PER_SECTOR);
-		cache.sector_number = sector;
+	int absolute_sector = filesystem->partition->lba_frist_sector + sector;
+	if (cache.sector_number != absolute_sector) {
+		ata_read((char*) cache.buffer, 0, absolute_sector, BYTES_PER_SECTOR);
+		cache.sector_number = absolute_sector;
 	}
 }
 

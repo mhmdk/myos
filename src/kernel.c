@@ -112,29 +112,49 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 
 	init_filesystem();
 
-	FAT32File *root = fat32_get_root_directory(volumes[0].filesystem);
-	List *dirlist = fat32_list_directory(volumes[0].filesystem, root);
-	dllist_for_each(dirlist, print_directory_entry);
-	dllist_free(&dirlist);
-	dirlist = 0;
-
-	root = fat32_get_root_directory(volumes[1].filesystem);
-	dirlist = fat32_list_directory(volumes[1].filesystem, root);
-	dllist_for_each(dirlist, print_directory_entry);
-	dllist_free(&dirlist);
-	dirlist = 0;
-
-	FAT32File *file = fat32_open_file(volumes[1].filesystem, root, "FILE-P2");
-	print("file in partition 2 \n");
-	print(file->name);
-	print("\n");
-	print_hex(file->address);
-	print("\n");
 //ignore warning , this is a private method and should not be called here
-	dirlist = _path_tokens("a/dir1/file1");
+	List *dirlist = _path_tokens("drv1/FILE-P2");
 	dllist_for_each(dirlist, print);
 	dllist_free(&dirlist);
 	dirlist = 0;
+
+	File *filep2 = open_file("drv1/FILE-P2");
+	print("file in drive 2 \n");
+	print(filep2->fat32file->name);
+	print("\n");
+	print_hex(filep2->fat32file->address);
+	print("\n");
+
+	File *filep1 = open_file("drv0/FILE-P1");
+	print("file in drive 1\n");
+	print(filep1->fat32file->name);
+	print("\n");
+	print_hex(filep1->fat32file->address);
+	print("\n");
+
+	char *buffer = kmalloc(1024);
+	print("reading from file p1\n");
+	read_from_file(filep1, buffer, 20, 0);
+	print(buffer);
+	print("reading from file p2\n");
+	read_from_file(filep2, buffer, 20, 0);
+	print(buffer);
+
+	List *directories = list_directory("drv0/");
+	dllist_for_each(directories, print);
+
+	directories = list_directory("drv0/DIR1/");
+	dllist_for_each(directories, print);
+
+	File *filemcf = open_file("drv0/MCS");
+	print("file in drive0/mcs\n");
+	print(filemcf->fat32file->name);
+	print("\n");
+	print_hex(filemcf->fat32file->address);
+	print("\n");
+	print("reading from multi cluster file\n");
+	read_from_file(filemcf, buffer, 1024, 0);
+	print(buffer);
 //test_ata_driver();
 	if (magic == MULTIBOOT_BOOTLOADER_MAGIC) {
 		print("MULTIBOOT_BOOTLOADER_MAGIC is CORRECT\n");
