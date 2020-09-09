@@ -15,6 +15,11 @@ static const uint8_t DELETED_DIRECTORY_ENTRY = 0xE5;
 static const uint8_t DOT_DIRECTORY_ENTRY =0x2E;
 static const uint8_t LONG_FILENAME_DIRECTORY_ATTRIBUTES =0x0F;
 
+static const uint8_t READ_ONLY_FILE_ATTRIBUTE =0x01;
+static const uint8_t HIDDEN_FILE_ATTRIBUTE =0x02;
+static const uint8_t SYSTEM_FILE_ATTRIBUTE =0x04;
+static const uint8_t SUBDIRECTORY_FILE_ATTRIBUTE =0x10;
+
 typedef struct {
 	// DOS2BiosParameterBlock
 	uint16_t bytes_per_sector;
@@ -81,6 +86,8 @@ typedef struct {
 
 typedef struct File_{
 char name[128];
+uint32_t size;
+uint32_t attributes;
 struct File_ *parent_directory;
 uint32_t  address; // starting cluster
 }FAT32File;

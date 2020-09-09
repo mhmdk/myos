@@ -112,11 +112,6 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 
 	init_filesystem();
 
-//ignore warning , this is a private method and should not be called here
-	List *dirlist = _path_tokens("drv1/FILE-P2");
-	dllist_for_each(dirlist, print);
-	dllist_free(&dirlist);
-	dirlist = 0;
 
 	File *filep2 = open_file("drv1/FILE-P2");
 	print("file in drive 2 \n");
@@ -145,12 +140,15 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 
 	directories = list_directory("drv0/DIR1/");
 	dllist_for_each(directories, print);
+	kfree(directories);
 
 	File *filemcf = open_file("drv0/MCS");
 	print("file in drive0/mcs\n");
 	print(filemcf->fat32file->name);
 	print("\n");
 	print_hex(filemcf->fat32file->address);
+	print("\n");
+	print_hex(filemcf->fat32file->size);
 	print("\n");
 	print("reading from multi cluster file\n");
 	read_from_file(filemcf, buffer, 1024, 0);

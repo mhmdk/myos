@@ -135,7 +135,7 @@ void dllist_free(List **list) {
 
 struct Node* dllist_find(List *list, void *data) {
 	struct Node *temp = list;
-	while ((temp != 0) && (temp-- > data != data)) {
+	while ((temp != 0) && ((temp-> data) != data)) {
 		temp = temp->next;
 	}
 	return temp;
@@ -144,7 +144,7 @@ struct Node* dllist_find(List *list, void *data) {
 int dllist_index_of(List *list, void *data) {
 	struct Node *temp = list;
 	int index = 0;
-	while ((temp != 0 )&& (temp-- > data != data)) {
+	while ((temp != 0 )&& ((temp-> data )!= data)) {
 		temp = temp->next;
 		index++;
 	}
