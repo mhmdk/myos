@@ -7,8 +7,12 @@ void __reload_data_segment_registers();
 void load_gdt(GlobalDescriptorTable* gdt){
   __asm__("lgdt (%0)"::"p"(gdt));
 
-  //this jump will reload the CS register
-  __asm__("ljmp %0,%1"::"n"(code_segment_selector),"p"(__reload_data_segment_registers));
+  //this far call (previously long jump )will reload the CS register
+  __asm__("call %0,%1"::"n"(code_segment_selector),"p"(__reload_data_segment_registers));
+
+  // because long call pushes both segment descriptor and eip,
+  // but the ret in __reload_data_segment_registers pops only eip
+  asm("add $4,%ESP");
 }
 
 void fill_gdt(GlobalDescriptorTable *gdt){
@@ -45,7 +49,7 @@ void __reload_data_segment_registers(){
   //per multiboot specifications those segments have offset 0 originally
   //so we are not really changing anything
   //otherwise we have to deal with a messed up stack??
-	//TODO this is causing if compiler option  -O0  is specified
+
   __asm__("push %%EAX\n\t"
 	  "mov %0,%%AX\n\t"
 	  "mov %%AX,%%DS\n\t"
@@ -54,6 +58,4 @@ void __reload_data_segment_registers(){
 	  "mov %%AX,%%GS\n\t"
 	  "mov %%AX,%%SS\n\t"
 	  "pop %%EAX"::"n"(data_segment_selector));
-
- // __asm__("nop");
 }
