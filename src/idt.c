@@ -5,6 +5,7 @@
 void __fill_interrupt_gate(IdtEntry*, uint32_t);
 void __fill_unused_gate(IdtEntry*);
 //void __fill_tss_gate(IdtEntry*);
+void setup_all_interrupts();
 
 IdtEntry entries[IDT_SIZE];
 
@@ -14,14 +15,15 @@ void load_idt(InterruptDescriptorTable *idt) {
 
 void fill_idt(InterruptDescriptorTable *idt) {
 
-	for (int i = 0; i < IDT_SIZE; i++) {
-		__fill_unused_gate(&(entries[i]));
-	}
+//	for (int i = 0; i < IDT_SIZE; i++) {
+//		__fill_unused_gate(&(entries[i]));
+//	}
 
-	set_interrupt_handler(interrupts_offset + 0, (uint32_t) dummy_isr);
-	set_interrupt_handler(interrupts_offset + 1, (uint32_t) isr_01_keyboard);
-	set_interrupt_handler(interrupts_offset + 14, (uint32_t) isr_14_ata);
-	set_interrupt_handler(interrupts_offset + 15, (uint32_t) isr_15_ata);
+	setup_all_interrupts();
+	//set_interrupt_handler(interrupts_offset + 0, (uint32_t) dummy_isr);
+//	set_interrupt_handler(interrupts_offset + 1, (uint32_t) isr_01_keyboard);
+//	set_interrupt_handler(interrupts_offset + 14, (uint32_t) isr_14_ata);
+//	set_interrupt_handler(interrupts_offset + 15, (uint32_t) isr_15_ata);
 
 	idt->adderess = entries;
 	//size = 8*N -1 where 8 is the size of one descriptor

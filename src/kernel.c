@@ -117,7 +117,7 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 	fill_idt(&idt);
 	load_idt(&idt);
 
-	setup_pic(interrupts_offset, interrupts_offset + 8);
+	setup_pic(interrupts_offset, interrupts_offset + number_of_interrupts_per_pic-1);
 	initialize_kmalloc();
 	init_keyboard();
 	init_vga();
