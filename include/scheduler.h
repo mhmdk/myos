@@ -6,7 +6,9 @@
 
 void init_scheduler(Process* init_process);
 void scheduler_add_process(Process* process);
+Process* scheduler_current_process();
 void schedule();
+void yield();
 
 
 #endif

@@ -96,14 +96,12 @@ void print_directory_entry(void *arg) {
 void taskA() {
 	while (1) {
 		print("A");
-		yield();
 	}
 }
 
 void taskB() {
 	while (1) {
 		print("B");
-		yield();
 	}
 }
 
@@ -117,15 +115,20 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 	fill_idt(&idt);
 	load_idt(&idt);
 
-	setup_pic(interrupts_offset, interrupts_offset + number_of_interrupts_per_pic-1);
+	setup_pic(interrupts_offset,
+			interrupts_offset + number_of_interrupts_per_pic - 1);
 	initialize_kmalloc();
 	init_keyboard();
 	init_vga();
 	init_console();
 	ata_detect();
-	enable_interrupts();
-
 	init_filesystem();
+
+	Process *processB = create_process((uint32_t) taskB);
+	Process *processA = create_process((uint32_t) taskA);
+	init_scheduler(processA);
+	scheduler_add_process(processB);
+	schedule();
 
 
 	File *filep2 = open_file("drv1/FILE-P2");
@@ -175,15 +178,7 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 		print("MULTIBOOT_BOOTLOADER_MAGIC is INCORRECT\n");
 	}
 	//print_memory_map(multibootinfo);
-
-	Process *processB = create_process((uint32_t)taskB);
-	Process *processA = create_process((uint32_t)taskA);
-	init_scheduler(processA);
-	scheduler_add_process(processB);
-	schedule();
-
 	terminal_main();
-
 	while (1) {
 		__asm__ ("hlt");
 	}

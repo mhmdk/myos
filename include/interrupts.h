@@ -47,6 +47,7 @@ typedef struct {
 } TrapFrame;
 
 void enable_interrupts();
+void disable_interrupts();
 void handle_interrupt(TrapFrame *trap_frame);
 
 
