@@ -4,6 +4,7 @@
 #include"common/dllist.h"
 #include"kmalloc.h"
 #include"interrupts.h"
+#include"gdt.h"
 
 void context_switch(Context **old_context, Context *new_context);
 
@@ -21,7 +22,11 @@ Process* scheduler_current_process() {
 
 void schedule() {
 	struct Node *current_node = process_list;
+	load_tss();
 	while (1) {
+		// per intel manual v3, par 6.8 :When an interrupt is handled through an interrupt gate
+		//and when the timer interrupt calls yield , the timer ISR in the context of previous process is not finished yet
+		//so we have to enable interrupts again, otherwise the next process will never be interrupted
 		enable_interrupts();
 
 		if (current_node == 0) {
@@ -35,6 +40,9 @@ void schedule() {
 					dllist_index_of(process_list, current_process));
 		} else if (current_process->state == READY) {
 			current_process->state = RUNNING;
+			set_tss_stack(
+					(uint32_t) (current_process->kernel_stack)
+							+ PROCESS_KERNEL_STACK_SIZE);
 			context_switch(&scheduler_context, current_process->context);
 		}
 

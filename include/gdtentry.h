@@ -23,6 +23,7 @@ typedef struct  __attribute__((__packed__)) {
 } GdtEntry;
 
 void fill_gdt_entry(GdtEntry *entry, uint32_t base, uint32_t limit, uint8_t flags);
+void fill_gdt_tss_entry(GdtEntry *entry,uint32_t base, uint32_t limit);
 
 
 

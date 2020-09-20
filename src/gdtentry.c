@@ -15,6 +15,18 @@ void fill_gdt_entry(GdtEntry *entry,uint32_t base, uint32_t limit, uint8_t flags
   _set_flags(entry,flags);
 }
 
+void fill_gdt_tss_entry(GdtEntry *entry,uint32_t base, uint32_t limit){
+	//intel manual ch3, 7.2.2 : Type bits of tss should be 1001
+	uint8_t flags = 0x09;
+	 flags |= GDT_PRESENT;
+
+  entry->limit_16_19_and_flags=0;
+
+  _set_base(entry,base);
+  _set_limit(entry,limit);
+  _set_flags(entry,flags);
+}
+
 static void _set_base(GdtEntry* entry, uint32_t base){
   entry->base_0_15=(base&0xffff);
   entry->base_16_23=((base>>16)&0xff);

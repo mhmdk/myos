@@ -1,5 +1,5 @@
 #include"process.h"
-
+#include"kmalloc.h"
 
 int next_pid = 1;
 Process* create_process(uint32_t entry_point) {
