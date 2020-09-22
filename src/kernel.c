@@ -16,6 +16,7 @@
 #include"terminal.h"
 #include"common/dllist.h"
 #include"scheduler.h"
+#include"drivers/pit.h"
 
 #if defined(__linux__)
 #error "compiling for linux"
@@ -95,7 +96,7 @@ void print_directory_entry(void *arg) {
 
 void taskA() {
 	while (1) {
-		print("A");
+	print("A");
 	}
 }
 
@@ -123,6 +124,7 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 	init_console();
 	ata_detect();
 	init_filesystem();
+	init_pit();
 
 	Process *processB = create_process((uint32_t) taskB);
 	Process *processA = create_process((uint32_t) taskA);

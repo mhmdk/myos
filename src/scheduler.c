@@ -6,13 +6,16 @@
 #include"interrupts.h"
 #include"gdt.h"
 
-void context_switch(Context **old_context, Context *new_context);
+void context_switch(Context **old_context, Context *new_context); //defined in asm
+void _wakeup(Process *process);
+void _sleep(Process *process, uint64_t sleep_time);
 
 List *process_list;
 Context *scheduler_context;
 Process *current_process = 0;
 
 void init_scheduler(Process *init_process) {
+	init_process->state = READY;
 	process_list = new_dllist(init_process);
 }
 
@@ -38,6 +41,9 @@ void schedule() {
 		if (current_process->state == ZOMBIE) {
 			dllist_delete_at_index(&process_list,
 					dllist_index_of(process_list, current_process));
+		} else if (current_process->state == SLEEPING
+				&& current_process->wake_up_time >= get_time_since_boot()) {
+			_wakeup(current_process);
 		} else if (current_process->state == READY) {
 			current_process->state = RUNNING;
 			set_tss_stack(
@@ -56,5 +62,15 @@ void yield() {
 void scheduler_add_process(Process *process) {
 	process->state = READY;
 	dllist_insert_at_tail(&process_list, process);
+}
+
+void _wakeup(Process *process) {
+	process->wake_up_time = 0;
+	process->state = READY;
+}
+
+void _sleep(Process *process, uint64_t sleep_time) {
+	process->wake_up_time = get_time_since_boot() + sleep_time;
+	process->state = SLEEPING;
 }
 

@@ -3,6 +3,10 @@
 #include"console.h"
 #include"scheduler.h"
 #include"drivers/keyboard.h"
+#include"drivers/pit.h"
+
+uint64_t time_since_boot=0;
+
 
 void panic(TrapFrame* trap_frame);
 
@@ -11,6 +15,7 @@ void handle_interrupt(TrapFrame *trap_frame) {
 	switch (trap_frame->trap_number) {
 	case interrupts_offset:
 		//print("got time interrupt\n");
+		time_since_boot+=TIME_BETWEEN_TIMER_INTERRUPTS_MS;
 		acknowledge_interupt_from_master();
 		if (scheduler_current_process()
 				&& scheduler_current_process()->state == RUNNING) {
@@ -56,6 +61,10 @@ void enable_interrupts() {
 }
 void disable_interrupts() {
 	__asm__ ("cli");
+}
+
+uint64_t get_time_since_boot(){
+	return time_since_boot;
 }
 
 void panic(TrapFrame* trap_frame){

@@ -7,6 +7,8 @@
 #define number_of_interrupts_per_pic  7
 #define syscall_trap_number  80
 
+uint64_t get_time_since_boot();
+
 typedef struct {
 	// registers  pushed pushed manually by pusha
 	uint32_t edi;

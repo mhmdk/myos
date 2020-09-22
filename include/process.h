@@ -25,6 +25,7 @@ typedef struct _Process{
 	struct _Process *parent;
 	struct TrapFrame *trap_frame;
 	Context *context;
+	uint64_t wake_up_time;
 } Process;
 
 Process* create_process(uint32_t entry_point);
