@@ -39,12 +39,15 @@ void schedule() {
 		current_node = current_node->next;
 
 		if (current_process->state == ZOMBIE) {
+			clean_process(current_process);
 			dllist_delete_at_index(&process_list,
 					dllist_index_of(process_list, current_process));
-		} else if (current_process->state == SLEEPING
-				&& current_process->wake_up_time >= get_time_since_boot()) {
+		}
+		if (current_process->state == SLEEPING
+				&& current_process->wake_up_time <= get_time_since_boot()) {
 			_wakeup(current_process);
-		} else if (current_process->state == READY) {
+		}
+		if (current_process->state == READY) {
 			current_process->state = RUNNING;
 			set_tss_stack(
 					(uint32_t) (current_process->kernel_stack)
@@ -55,13 +58,33 @@ void schedule() {
 	}
 }
 
+void scheduler_add_process(Process *process) {
+	process->state = READY;
+	dllist_insert_at_tail(&process_list, process);
+}
+
 void yield() {
 	current_process->state = READY;
 	context_switch(&(current_process->context), scheduler_context);
 }
-void scheduler_add_process(Process *process) {
-	process->state = READY;
-	dllist_insert_at_tail(&process_list, process);
+
+void wakeup(int pid) {
+	struct Node *current_node = process_list;
+	Process *process = 0;
+	while (current_node != 0) {
+		process = (Process*) (current_node->data);
+		if (process->pid == pid) {
+			break;
+		}
+	}
+	if (process != 0) {
+		_wakeup(process);
+	}
+}
+
+void ksleep(uint64_t sleep_time) {
+	_sleep(current_process, sleep_time);
+	context_switch(&(current_process->context), scheduler_context);
 }
 
 void _wakeup(Process *process) {

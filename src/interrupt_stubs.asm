@@ -2,7 +2,9 @@
 
 extern set_interrupt_handler
 extern handle_interrupt
+data_segment_selector equ 2<<3
 global setup_all_interrupts
+global trap_return
 section .text
 setup_all_interrupts:
 call setup_interrupt_0
@@ -3584,11 +3586,16 @@ push fs
 push gs
 
 pushad
+
+mov ax,data_segment_selector
+mov es, ax
+mov ds, ax
 push esp ; trap_frame* parameter
 cld  ; C code following the sysV ABI requires DF to be clear on function entry
 call handle_interrupt
-
 add esp, 4
+
+trap_return:
 popad
 
 pop gs
@@ -3596,6 +3603,7 @@ pop fs
 pop es
 pop ds
 
+;skip trap_number and err
 add esp, 8
 
 iret

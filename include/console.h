@@ -17,9 +17,9 @@ typedef struct {
 } Console;
 
 void init_console();
-void print(char* const);
+void kprint(char* const);
 void erase_char();
-void print_hex(uint32_t number);
+void kprint_hex(uint32_t number);
 void putchar(char c);
 void clear_console();
 void page_up();

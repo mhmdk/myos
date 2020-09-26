@@ -17,8 +17,8 @@ char* gets(char *s) {
 }
 
 int puts(char*s) {
-	print(s);
-	print("\n");
+	kprint(s);
+	kprint("\n");
 
 	return strlen(s);
 }

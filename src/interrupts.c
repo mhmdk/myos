@@ -4,6 +4,7 @@
 #include"scheduler.h"
 #include"drivers/keyboard.h"
 #include"drivers/pit.h"
+#include"ksyscall.h"
 
 uint64_t time_since_boot=0;
 
@@ -14,7 +15,7 @@ void handle_interrupt(TrapFrame *trap_frame) {
 	//print("got an interrupt\n");
 	switch (trap_frame->trap_number) {
 	case interrupts_offset:
-		//print("got time interrupt\n");
+		//kprint("got time interrupt\n");
 		time_since_boot+=TIME_BETWEEN_TIMER_INTERRUPTS_MS;
 		acknowledge_interupt_from_master();
 		if (scheduler_current_process()
@@ -28,18 +29,19 @@ void handle_interrupt(TrapFrame *trap_frame) {
 		break;
 	case interrupts_offset + 14:
 		// ata driver is not interrupt driven, we can ignore
-		print("got ata  interrupt  from primary bus\n");
+		kprint("got ata  interrupt  from primary bus\n");
 		break;
 	case interrupts_offset + 15:
 		// ata driver is not interrupt driven, we can ignore
-		print("got ata  interrupt  from secondary bus\n");
+		kprint("got ata  interrupt  from secondary bus\n");
 		break;
 	case syscall_trap_number:
-		print("syscall\n");
+		//kprint("syscall\n");
+		trap_frame->eax = ksyscall(trap_frame->eax,(uint32_t*)trap_frame->ebx);
 		break;
 	default:
-		print("unknown interrupt\n");
-		print_hex(trap_frame->trap_number);
+		kprint("unknown interrupt\n");
+		kprint_hex(trap_frame->trap_number);
 		panic(trap_frame);
 	}
 
@@ -68,40 +70,40 @@ uint64_t get_time_since_boot(){
 }
 
 void panic(TrapFrame* trap_frame){
-print("PANIC!!\n");
+kprint("PANIC!!\n");
 
-print("\n edi = ");
-print_hex(trap_frame->edi);
-print("\n esi = ");
-print_hex(trap_frame->esi);
-print("\n ebp = ");
-print_hex(trap_frame->ebp);
-print("\n edi = ");
-print_hex(trap_frame->edi);
-print("\n old_esp = ");
-print_hex(trap_frame->old_esp);
-print("\n ecx = ");
-print_hex(trap_frame->ecx);
-print("\n eax = ");
-print_hex(trap_frame->eax);
-print("\n gs = ");
-print_hex(trap_frame->gs);
-print("\n fs = ");
-print_hex(trap_frame->fs);
-print("\n es = ");
-print_hex(trap_frame->es);
-print("\n ds = ");
-print_hex(trap_frame->ds);
-print("\n eip = ");
-print_hex(trap_frame->eip);
-print("\n cs = ");
-print_hex(trap_frame->cs);
-print("\n eflags = ");
-print_hex(trap_frame->eflags);
-print("\n esp = ");
-print_hex(trap_frame->esp);
-print("\n ss = ");
-print_hex(trap_frame->ss);
+kprint("\n edi = ");
+kprint_hex(trap_frame->edi);
+kprint("\n esi = ");
+kprint_hex(trap_frame->esi);
+kprint("\n ebp = ");
+kprint_hex(trap_frame->ebp);
+kprint("\n edi = ");
+kprint_hex(trap_frame->edi);
+kprint("\n old_esp = ");
+kprint_hex(trap_frame->old_esp);
+kprint("\n ecx = ");
+kprint_hex(trap_frame->ecx);
+kprint("\n eax = ");
+kprint_hex(trap_frame->eax);
+kprint("\n gs = ");
+kprint_hex(trap_frame->gs);
+kprint("\n fs = ");
+kprint_hex(trap_frame->fs);
+kprint("\n es = ");
+kprint_hex(trap_frame->es);
+kprint("\n ds = ");
+kprint_hex(trap_frame->ds);
+kprint("\n eip = ");
+kprint_hex(trap_frame->eip);
+kprint("\n cs = ");
+kprint_hex(trap_frame->cs);
+kprint("\n eflags = ");
+kprint_hex(trap_frame->eflags);
+kprint("\n esp = ");
+kprint_hex(trap_frame->esp);
+kprint("\n ss = ");
+kprint_hex(trap_frame->ss);
 
 asm("hlt");
 }

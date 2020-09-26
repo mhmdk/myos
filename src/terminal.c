@@ -32,7 +32,7 @@ void terminal_main() {
 			}
 		} else if (keycode == KEY_ENTER || keycode == KEY_KEYPAD_ENTER) {
 			scroll_to_cursor();
-			print("\n");
+			kprint("\n");
 
 			process_input(user_input);
 
@@ -62,9 +62,9 @@ void process_input(char user_input[]) {
 	trim(user_input,0);
 
 	if (strcmp(user_input, "pm") == 0) {
-		print("memory map\n");
+		kprint("memory map\n");
 	} else {
-		print("unknown command\n");
+		kprint("unknown command\n");
 	}
 }
 

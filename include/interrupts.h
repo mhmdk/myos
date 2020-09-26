@@ -5,7 +5,7 @@
 
 #define  interrupts_offset 32 //macro because it is used in a switch statement
 #define number_of_interrupts_per_pic  7
-#define syscall_trap_number  80
+#define syscall_trap_number  128
 
 uint64_t get_time_since_boot();
 
@@ -38,12 +38,12 @@ typedef struct {
 	uint32_t eip;
 	uint16_t cs;
 	uint16_t cs_padding;
-	uint16_t eflags;
+	uint32_t eflags;
 
 	// the following registers are pushed only when the handler
 	// is going to be executed at numerically lower privilege
 	// see Intel developer's manual volume 3 , 6.12.1
-	uint16_t esp;
+	uint32_t esp;
 	uint16_t ss;
 	uint16_t ss_padding;
 } TrapFrame;

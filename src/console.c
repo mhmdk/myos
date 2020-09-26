@@ -2,6 +2,8 @@
 #include"kmalloc.h"
 #include"drivers/vga.h"
 #include"kernel_libc/string.h"
+#include"interrupts.h"
+
 
 void _hex_format(uint32_t number, char *s);
 void _append_to_console(char *const s);
@@ -33,9 +35,11 @@ void init_console() {
 	clear_screen();
 }
 
-void print(char *const s) {
+void kprint(char *const s) {
+	disable_interrupts();
 	_append_to_console(s);
 	_copy_to_screen();
+	enable_interrupts();
 }
 
 void erase_char() {
@@ -46,7 +50,7 @@ void erase_char() {
 void putchar(char c) {
 	char s[2] = { 0, 0 };
 	s[0] = c;
-	print(s);
+	kprint(s);
 }
 
 void clear_console() {
@@ -68,10 +72,10 @@ void _clear_current_row() {
 			active_console->number_of_columns * sizeof(uint16_t));
 }
 
-void print_hex(uint32_t number) {
+void kprint_hex(uint32_t number) {
 	char s[11] = "0x00000000";
 	_hex_format(number, s);
-	print(s);
+	kprint(s);
 }
 
 void _hex_format(uint32_t number, char *s) {

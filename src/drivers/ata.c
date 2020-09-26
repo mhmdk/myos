@@ -82,7 +82,7 @@ int _identify(int primary, int slave) {
 		status_register = inb(io_base_port + STATUS_REGISTER_OFFSET);
 	}
 	if (status_register & STATUS_REGISTER_ERR_FLAG) {
-		print(
+		kprint(
 				"ERROR: ATA drive detected but ERR flag of status register set\n");
 		//the error can  cleared by sending a new command to the drive
 		//but we will exit
@@ -97,13 +97,13 @@ int _identify(int primary, int slave) {
 	_read_identify_output(main_drive);
 	_read_size(main_drive);
 
-	print("info: ATA drive ");
-	print(main_drive->master ? "master" : "slave");
-	print(primary ? " on primary bus" : " on secondary bus");
-	print(" detected \n");
-	print("size = ");
-	print_hex(main_drive->max_size);
-	print("\n");
+	kprint("info: ATA drive ");
+	kprint(main_drive->master ? "master" : "slave");
+	kprint(primary ? " on primary bus" : " on secondary bus");
+	kprint(" detected \n");
+	kprint("size = ");
+	kprint_hex(main_drive->max_size);
+	kprint("\n");
 
 	return 1;
 }
