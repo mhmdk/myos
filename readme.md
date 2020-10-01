@@ -17,7 +17,7 @@ target remote localhost:1234
 
 ### 1.  fix compiler errors ###
 * project-->properties-->c/c++ build--> untick "generate makefile automatically ; and specify build location
-* project-->properties-->c/c++ build--> pre-processor include paths-->providers tab-->check gcc cross builtin , and replace ${COMMAND} with the cross compiler command and ${FLAGS} with the correct flags ,see https://forum.osdev.org/viewtopic.php?f=13&t=29746
+* project-->properties-->c/c++ general--> pre-processor include paths-->providers tab-->check gcc cross builtin , and replace ${COMMAND} with the cross compiler command and ${FLAGS} with the correct flags ,see https://forum.osdev.org/viewtopic.php?f=13&t=29746
 
 ### 2.  add run configuration: ###
 *  **qemu** : run-->external tools--> add qemu command
@@ -50,6 +50,15 @@ sudo losetup  -o 512  --sizelimit 2080256 /dev/loop1 hda.img  # 2080256 = 4063*5
 mkdosfs -F32 -v /dev/loop1 #warning  Not enough clusters for a 32 bit FAT! may be emmited
 sudo losetup  -o 512  --sizelimit 2080768 /dev/loop2 hda.img  # 2080768 = 4064*512 
 mkdosfs -F32 -v /dev/loop2
+
+to use the disk from host machine:
+sudo losetup /dev/loop0 hda.img
+partprobe /dev/loop0 
+# now /dev/loop0p1  /dev/loop0p2 should apear, they can be mounted normally
+# to detach device:
+sudo losetup -d /dev/loop0 
+
+
 
 
 

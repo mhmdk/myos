@@ -177,6 +177,7 @@ void _cache_flush(ata_drive *drive) {
 }
 
 void _issue_ata_command(uint16_t io_base_port, uint16_t command) {
+
 	_wait_for_device(io_base_port);
 	outb(io_base_port + COMMAND_REGISTER_OFFSET, command);
 }
@@ -192,6 +193,7 @@ void _wait_for_device(uint16_t io_base_port) {
 			|| (status_register & STATUS_REGISTER_DRQ_FLAG)
 			) {
 		status_register = inb(io_base_port + STATUS_REGISTER_OFFSET);
+		//TODO this is making debug wait forever
 	}
 }
 

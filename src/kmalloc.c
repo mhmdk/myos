@@ -64,7 +64,8 @@ void* kmalloc(uint32_t size) {
 		return header + 1;
 
 	} else {
-		// TODO panic
+		kprint("kmalloc failed");
+		panic();
 		return 0;
 	}
 }

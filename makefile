@@ -10,11 +10,9 @@ CC := $(HOME)/opt/cross/bin/i686-elf-gcc
 
 PROJDIRS := $(shell pwd)
 TARGET := target
-DEPS_TARGET := dependencies
 # find files as list of relative paths
 SRCFILES := $(shell find $(PROJDIRS) -type f -name "*.c" -printf '%P ')
 ASMFILES := $(shell find $(PROJDIRS) -type f -name "*.asm" -printf '%P ')
-HDRFILES := $(shell find $(PROJDIRS) -type f -name "*.h" -printf '%P ')
 OBJFILES := $(patsubst src/%.c,$(TARGET)/%.o,$(SRCFILES)) $(patsubst src/%.asm,$(TARGET)/%.o,$(ASMFILES))
 DEPFILES := $(patsubst %.o,%.d,$(OBJFILES))
 

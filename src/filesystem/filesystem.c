@@ -44,7 +44,7 @@ File* open_file(char *path) {
 		return 0;
 	}
 	FAT32File *directory = fat32_get_root_directory(volume->filesystem);
-	kprint("root of drive  \n");
+	kprint("\nroot of drive  \n");
 	kprint(directory->name);
 	kprint("\n");
 	kprint_hex(directory->address);

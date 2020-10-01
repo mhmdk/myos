@@ -1,6 +1,5 @@
 #include"scheduler.h"
 #include"console.h"
-#include"process.h"
 #include"common/dllist.h"
 #include"kmalloc.h"
 #include"interrupts.h"
@@ -9,6 +8,7 @@
 void context_switch(Context **old_context, Context *new_context); //defined in asm
 void _wakeup(Process *process);
 void _sleep(Process *process, uint64_t sleep_time);
+void _kill(Process *process);
 
 List *process_list;
 Context *scheduler_context;
@@ -68,6 +68,31 @@ void yield() {
 	context_switch(&(current_process->context), scheduler_context);
 }
 
+void kexit() {
+	current_process->state = ZOMBIE;
+	context_switch(&(current_process->context), scheduler_context);
+}
+
+int kgetpid() {
+	return current_process->pid;
+}
+
+int kkill(int  pid) {
+	struct Node *current_node = process_list;
+	Process *process = 0;
+	while (current_node != 0) {
+		process = (Process*) (current_node->data);
+		if (process->pid == pid) {
+			break;
+		}
+	}
+	if (process != 0) {
+		_kill(process);
+	} else {
+		return -1;
+	}
+	return 0;
+}
 void wakeup(int pid) {
 	struct Node *current_node = process_list;
 	Process *process = 0;
@@ -97,3 +122,6 @@ void _sleep(Process *process, uint64_t sleep_time) {
 	process->state = SLEEPING;
 }
 
+void _kill(Process *process){
+	process->state = ZOMBIE;
+}

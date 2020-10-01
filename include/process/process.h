@@ -26,8 +26,8 @@ typedef struct _Process{
 	int pid;
 	char *kernel_stack;
 	char* user_stack;
-	char* image_address;
-	uint32_t image_size;
+	char** image_segments;
+	uint32_t number_of_image_segments;
 	struct _Process *parent;
 	TrapFrame *trap_frame;
 	Context *context;

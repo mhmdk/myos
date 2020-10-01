@@ -18,6 +18,7 @@
 #include"scheduler.h"
 #include"drivers/pit.h"
 #include"user_mode_test.h"
+#include"process/elf.h"
 
 #if defined(__linux__)
 #error "compiling for linux"
@@ -113,15 +114,26 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 	init_vga();
 	init_console();
 	ata_detect();
-	//init_filesystem();
+	init_filesystem();
 	init_pit();
 
-	//Process *processB = create_process((uint32_t) taskB);
-	//Process *processA = create_process((uint32_t) taskA);
-	Process *processB = create_user_process((uint32_t) taskB);
-	Process *processA = create_user_process((uint32_t) taskA);
-	init_scheduler(processA);
-	scheduler_add_process(processB);
+	Process *process_terminal = create_process((uint32_t) terminal_main);
+//	Process *processB = create_user_process((uint32_t) taskB);
+//	Process *processA = create_user_process((uint32_t) taskA);
+
+	Process *hello =execute_elf("drv0/HELLO");
+	Process *bg_proc =execute_elf("drv0/BGPROC");
+//	kprint("memory base of hello\n");
+//	kprint_hex(hello->number_of_image_segments);
+//	kprint_hex(hello->image_segments[0]);
+//	kprint_hex(hello->image_segments[1]);
+//	kprint("memory base of bg\n");
+//	kprint_hex(bg_proc->number_of_image_segments);
+//	kprint_hex(bg_proc->image_segments[0]);
+//	kprint_hex(bg_proc->image_segments[1]);
+	init_scheduler(process_terminal);
+	scheduler_add_process(hello);
+	scheduler_add_process(bg_proc);
 	schedule();
 
 	File *filep2 = open_file("drv1/FILE-P2");
