@@ -57,7 +57,7 @@ where hda.img is a disk image file that the emulator will provide as a hard disk
 by default eclipse will run "make all" .  
 new build targets,ex: clean install,  can be added with project-->build targets-->create  
 
-## Making a partitioned image for testing##
+## Making a partitioned image for testing ##
 the following will make a disk image with dos partition table, and two FAT32 formatted partitions
 
 	dd if=/dev/zero of=hda.img bs=512 count=8064 
