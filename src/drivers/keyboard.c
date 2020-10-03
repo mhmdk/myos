@@ -68,7 +68,7 @@ void handle_keyboard_interrupt() {
 		uint8_t pressed = !(scancode & 0x80);
 		scancode &= 0x7f; //remove the released flag
 		if (scancode >= KEYMAP_SIZE) {
-			//TODO log a warning, this should not happen
+			kprint("received keyboard scan code >= KEYMAP_SIZE\n");
 			return;
 		}
 		if (e0_prefix) {

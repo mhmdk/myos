@@ -101,9 +101,9 @@ int _identify(int primary, int slave) {
 	kprint(main_drive->master ? "master" : "slave");
 	kprint(primary ? " on primary bus" : " on secondary bus");
 	kprint(" detected \n");
-	kprint("size = ");
+	kprint("drive size = ");
 	kprint_hex(main_drive->max_size);
-	kprint("\n");
+	kprint(" sectors\n");
 
 	return 1;
 }

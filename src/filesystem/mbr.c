@@ -9,19 +9,19 @@ void mbr_read() {
 	ata_read((char*)mbr, 0, 0, BYTES_PER_SECTOR);
 	if (mbr->boot_signature != 0xAA55) {
 		//not mbr
-		kprint("incorrect signature\n");
+		kprint("incorrect MBR signature\n");
 		kprint_hex(mbr->boot_signature);
 	} else {
 		for (int i = 0; i < 4; i++) {
 			if ((mbr->partitions[i]).type == 0x0c) {
 				kprint("FAT32 partition detected\n");
-				kprint("partition start: ");
+				kprint("partition starts at sector ");
 				kprint_hex((mbr->partitions[i]).lba_frist_sector);
-				kprint("\npartition size: ");
+				kprint("\npartition size is ");
 				kprint_hex((mbr->partitions[i]).number_of_sectors);
-				kprint("\n");
+				kprint(" sectors\n");
 			} else {
-				kprint("unknown partition type\n");
+				//kprint("unknown partition type\n");
 			}
 		}
 	}

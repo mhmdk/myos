@@ -1,24 +1,22 @@
 #include<stdint.h>
 #include<stddef.h>
 
+#include "multiboot.h"
 #include "kmalloc.h"
-#include"keyboard_layout.h"
 #include"drivers/keyboard.h"
 #include"drivers/vga.h"
+#include"drivers/pit.h"
 #include"drivers/ata.h"
-#include "multiboot.h"
+#include "filesystem/filesystem.h"
+#include"scheduler.h"
+#include"process/elf.h"
 #include "gdt.h"
 #include "idt.h"
 #include "interrupts.h"
 #include "pic.h"
 #include"console.h"
-#include "filesystem/filesystem.h"
 #include"terminal.h"
 #include"common/dllist.h"
-#include"scheduler.h"
-#include"drivers/pit.h"
-#include"user_mode_test.h"
-#include"process/elf.h"
 
 #if defined(__linux__)
 #error "compiling for linux"
@@ -28,8 +26,50 @@
 #error "not i386"
 #endif
 
+void print_memory_map(multiboot_info_t *multibootinfo);
+
+void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
+
+	GlobalDescriptorTable gdt;
+	fill_gdt(&gdt);
+	load_gdt(&gdt);
+
+	InterruptDescriptorTable idt;
+	fill_idt(&idt);
+	load_idt(&idt);
+
+	setup_pic(interrupts_offset,
+	interrupts_offset + number_of_interrupts_per_pic - 1);
+	initialize_kmalloc();
+	init_keyboard();
+	init_vga();
+	init_console();
+	ata_detect();
+	init_filesystem();
+	init_pit();
+
+	if (magic == MULTIBOOT_BOOTLOADER_MAGIC) {
+		kprint("MULTIBOOT_BOOTLOADER_MAGIC is CORRECT\n");
+	} else {
+		kprint("MULTIBOOT_BOOTLOADER_MAGIC is INCORRECT\n");
+	}
+	print_memory_map(multibootinfo);
+
+	Process *process_terminal = create_process((uint32_t) terminal_main);
+	init_scheduler(process_terminal);
+//	Process *hello = execute_elf("drv0/HELLO");
+//	Process *bg_proc = execute_elf("drv0/BGPROC");
+//	scheduler_add_process(hello);
+//	scheduler_add_process(bg_proc);
+	schedule();
+
+	while (1) {
+		__asm__ ("hlt");
+	}
+}
+
 void print_multiboot_memory_map_entry(struct multiboot_mmap_entry *entry) {
-	kprint("memory map entry: \n");
+	kprint("\nmemory map entry:");
 //	print(console, "size: ");
 //	print_hex(console, entry->size);
 //	print(console, "\naddr high: ");
@@ -46,6 +86,7 @@ void print_multiboot_memory_map_entry(struct multiboot_mmap_entry *entry) {
 }
 
 void print_memory_map(multiboot_info_t *multibootinfo) {
+	kprint("memory map: \n");
 	kprint("lower memory size : ");
 	kprint_hex(multibootinfo->mem_lower);
 	kprint("\n");
@@ -69,123 +110,6 @@ void print_memory_map(multiboot_info_t *multibootinfo) {
 		kprint_hex(offset);
 		kprint("\n");
 		print_multiboot_memory_map_entry(entry);
-	}
-}
-
-void test_ata_driver() {
-	char *data = "0123456789\n";
-	int write_count = ata_write(data, 0, 20, 11);
-	kprint("written");
-	kprint_hex(write_count);
-	kprint("bytes\n");
-	char *buffer = (char*) kmalloc(20);
-	buffer[12] = 0;
-	int read_count = ata_read(buffer, 0, 20, 11);
-	kprint("read ");
-	kprint_hex(read_count);
-	kprint("bytes\n");
-	kprint(buffer);
-}
-
-void print_directory_entry(void *arg) {
-	DirectoryEntry *entry = (DirectoryEntry*) arg;
-	entry->name[11] = 0;
-	kprint(entry->name);
-	kprint("\n");
-	kprint_hex(entry->attributes);
-	kprint("\n");
-}
-
-
-void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
-
-	GlobalDescriptorTable gdt;
-	fill_gdt(&gdt);
-	load_gdt(&gdt);
-
-	InterruptDescriptorTable idt;
-	fill_idt(&idt);
-	load_idt(&idt);
-
-	setup_pic(interrupts_offset,
-	interrupts_offset + number_of_interrupts_per_pic - 1);
-	initialize_kmalloc();
-	init_keyboard();
-	init_vga();
-	init_console();
-	ata_detect();
-	init_filesystem();
-	init_pit();
-
-	Process *process_terminal = create_process((uint32_t) terminal_main);
-//	Process *processB = create_user_process((uint32_t) taskB);
-//	Process *processA = create_user_process((uint32_t) taskA);
-
-	Process *hello =execute_elf("drv0/HELLO");
-	Process *bg_proc =execute_elf("drv0/BGPROC");
-//	kprint("memory base of hello\n");
-//	kprint_hex(hello->number_of_image_segments);
-//	kprint_hex(hello->image_segments[0]);
-//	kprint_hex(hello->image_segments[1]);
-//	kprint("memory base of bg\n");
-//	kprint_hex(bg_proc->number_of_image_segments);
-//	kprint_hex(bg_proc->image_segments[0]);
-//	kprint_hex(bg_proc->image_segments[1]);
-	init_scheduler(process_terminal);
-	scheduler_add_process(hello);
-	scheduler_add_process(bg_proc);
-	schedule();
-
-	File *filep2 = open_file("drv1/FILE-P2");
-	kprint("file in drive 2 \n");
-	kprint(filep2->fat32file->name);
-	kprint("\n");
-	kprint_hex(filep2->fat32file->address);
-	kprint("\n");
-
-	File *filep1 = open_file("drv0/FILE-P1");
-	kprint("file in drive 1\n");
-	kprint(filep1->fat32file->name);
-	kprint("\n");
-	kprint_hex(filep1->fat32file->address);
-	kprint("\n");
-
-	char *buffer = kmalloc(1024);
-	kprint("reading from file p1\n");
-	read_from_file(filep1, buffer, 20, 0);
-	kprint(buffer);
-	kprint("reading from file p2\n");
-	read_from_file(filep2, buffer, 20, 0);
-	kprint(buffer);
-
-	List *directories = list_directory("drv0/");
-	dllist_for_each(directories, kprint);
-
-	directories = list_directory("drv0/DIR1/");
-	dllist_for_each(directories, kprint);
-	kfree(directories);
-
-	File *filemcf = open_file("drv0/MCS");
-	kprint("file in drive0/mcs\n");
-	kprint(filemcf->fat32file->name);
-	kprint("\n");
-	kprint_hex(filemcf->fat32file->address);
-	kprint("\n");
-	kprint_hex(filemcf->fat32file->size);
-	kprint("\n");
-	kprint("reading from multi cluster file\n");
-	read_from_file(filemcf, buffer, 1024, 0);
-	kprint(buffer);
-//test_ata_driver();
-	if (magic == MULTIBOOT_BOOTLOADER_MAGIC) {
-		kprint("MULTIBOOT_BOOTLOADER_MAGIC is CORRECT\n");
-	} else {
-		kprint("MULTIBOOT_BOOTLOADER_MAGIC is INCORRECT\n");
-	}
-	//print_memory_map(multibootinfo);
-	terminal_main();
-	while (1) {
-		__asm__ ("hlt");
 	}
 }
 

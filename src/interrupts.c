@@ -17,15 +17,18 @@ void handle_interrupt(TrapFrame *trap_frame) {
 		//kprint("got time interrupt\n");
 		time_since_boot += TIME_BETWEEN_TIMER_INTERRUPTS_MS;
 		acknowledge_interupt_from_master();
-		if (scheduler_current_process()->state == RUNNING) {
+		enum ProcessState current_process_state =
+				scheduler_current_process()->state;
+		if (current_process_state == RUNNING
+				|| current_process_state == READY) {
 			yield();
-		} else if (scheduler_current_process()->state == ZOMBIE) {
+		} else if (current_process_state == ZOMBIE) {
 			// example : in case command :kill {terminal_pid}  is issued
 			kexit();
 		} else {
 			kprint(
 					"timer interrupt occured and current process is in an illegal state\n");
-			panic(trap_frame);
+			//panic(trap_frame);
 		}
 
 		break;

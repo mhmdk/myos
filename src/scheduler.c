@@ -17,12 +17,13 @@ Process *current_process = 0;
 void init_scheduler(Process *init_process) {
 	init_process->state = READY;
 	process_list = new_dllist(init_process);
+	current_process=init_process;
 }
 
 Process* scheduler_current_process() {
 	return current_process;
 }
-
+//for debugging
 void _print_proc_id(Process *p){
 kprint_hex(p->pid);
 kprint(" ");
@@ -31,12 +32,15 @@ void schedule() {
 	struct Node *current_node = process_list;
 	load_tss();
 	while (1) {
+//		kprint("entered scheduler, process list: \n");
+//		dllist_for_each(process_list,_print_proc_id);
+//		kprint("\n");
+
 		// per intel manual v3, par 6.8 :When an interrupt is handled through an interrupt gate
 		//and when the timer interrupt calls yield , the timer ISR in the context of previous process is not finished yet
 		//so we have to enable interrupts again, otherwise the next process will never be interrupted
 		enable_interrupts();
 
-		//kprint("scheduler\n");
 		if (current_node == 0) {
 			current_node = process_list;
 		}
@@ -44,8 +48,6 @@ void schedule() {
 		current_node = current_node->next;
 
 		if (current_process->state == ZOMBIE) {
-//			dllist_for_each(process_list,_print_proc_id);
-//			kprint("\n");
 
 			dllist_delete_at_index(&process_list,
 					dllist_index_of(process_list, current_process));

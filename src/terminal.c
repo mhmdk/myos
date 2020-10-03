@@ -15,6 +15,8 @@ static const int MAX_INPUT_SIZE = 100;
 void terminal_main() {
 	char user_input[101] = { 0 };
 	int input_next_index = 0;
+	kprint("****************************\n");
+	kprint("Welcome\n");
 	while (1) {
 		uint8_t keycode = read_keycode_from_buffer();
 
@@ -48,7 +50,8 @@ void terminal_main() {
 			char c = character_from_keycode(keycode);
 			if (c == 0) {
 				scroll_to_cursor();
-				putchar('~');
+				//not a printable character
+				//putchar('~');
 			} else {
 				//printable char
 				if (input_next_index <= MAX_INPUT_SIZE) {
@@ -77,6 +80,7 @@ void process_input(char user_input[]) {
 		next_token(arg1, user_input, ' ');
 		List *directories = list_directory(arg1);
 		dllist_for_each(directories, kprint);
+		kprint("\n");
 		kfree(directories);
 
 	} else if (strcmp(command, "cat") == 0) {
