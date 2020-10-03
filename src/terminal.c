@@ -3,7 +3,13 @@
 #include"drivers/keyboard.h"
 #include"console.h"
 #include"kernel_libc/string.h"
+#include"kernel_libc/stdlib.h"
 #include"common/stringutils.h"
+#include"common/dllist.h"
+#include"filesystem/filesystem.h"
+#include"kmalloc.h"
+#include"process/elf.h"
+#include"scheduler.h"
 
 static const int MAX_INPUT_SIZE = 100;
 void terminal_main() {
@@ -59,12 +65,43 @@ void terminal_main() {
 }
 
 void process_input(char user_input[]) {
-	trim(user_input,0);
+	trim(user_input, 0);
 
-	if (strcmp(user_input, "pm") == 0) {
-		kprint("memory map\n");
+	char command[50], arg1[50];
+	next_token(command, user_input, ' ');
+	trim(command, 0);
+	user_input += strlen(command) + 1;
+	trim(user_input, 0);
+
+	if (strcmp(command, "ls") == 0) {
+		next_token(arg1, user_input, ' ');
+		List *directories = list_directory(arg1);
+		dllist_for_each(directories, kprint);
+		kfree(directories);
+
+	} else if (strcmp(command, "cat") == 0) {
+		next_token(arg1, user_input, ' ');
+		File *file = open_file(arg1);
+		char *buffer = (char*) kmalloc(file->fat32file->size);
+		read_from_file(file, buffer, file->fat32file->size, 0);
+		kprint(buffer);
+
+	} else if (strcmp(command, "exec") == 0) {
+		next_token(arg1, user_input, ' ');
+		Process *p = execute_elf(arg1);
+		scheduler_add_process(p);
+
+	} else if (strcmp(command, "kill") == 0) {
+		next_token(arg1, user_input, ' ');
+		int pid = atoi(arg1);
+		kprint("arg1 is ");
+		kprint_hex(pid);
+		kkill(pid);
+
 	} else {
-		kprint("unknown command\n");
+		kprint("unknown command ");
+		kprint(command);
+		kprint("\n");
 	}
 }
 

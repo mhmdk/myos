@@ -29,7 +29,7 @@ void init_filesystem() {
 		if (partitions[i].number_of_sectors > 0
 				&& partitions[i].type == FAT32_PARTITION_TYPE) {
 			strcpy(volumes[i].label, "drv");
-			itoa(i, volumes[i].label + 3, 10);
+			itoa(i, volumes[i].label + 3);
 			volumes[i].type = FAT32_PARTITION_TYPE;
 			volumes[i].filesystem = make_fat32filesystem(&partitions[i]);
 		}

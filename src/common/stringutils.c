@@ -42,6 +42,6 @@ char* next_token(char *buffer, char *str, char delimiter) {
 	int size = (int) (end - str);
 	memcpy(buffer, str, size);
 	buffer[size] = 0;
-	return 0;
+	return buffer;
 }
 

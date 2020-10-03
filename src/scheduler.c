@@ -23,6 +23,10 @@ Process* scheduler_current_process() {
 	return current_process;
 }
 
+void _print_proc_id(Process *p){
+kprint_hex(p->pid);
+kprint(" ");
+}
 void schedule() {
 	struct Node *current_node = process_list;
 	load_tss();
@@ -32,6 +36,7 @@ void schedule() {
 		//so we have to enable interrupts again, otherwise the next process will never be interrupted
 		enable_interrupts();
 
+		//kprint("scheduler\n");
 		if (current_node == 0) {
 			current_node = process_list;
 		}
@@ -39,9 +44,15 @@ void schedule() {
 		current_node = current_node->next;
 
 		if (current_process->state == ZOMBIE) {
-			clean_process(current_process);
+//			dllist_for_each(process_list,_print_proc_id);
+//			kprint("\n");
+
 			dllist_delete_at_index(&process_list,
 					dllist_index_of(process_list, current_process));
+			clean_process(current_process);
+
+//			dllist_for_each(process_list,_print_proc_id);
+//			kprint("\n");
 		}
 		if (current_process->state == SLEEPING
 				&& current_process->wake_up_time <= get_time_since_boot()) {
@@ -85,8 +96,9 @@ int kkill(int  pid) {
 		if (process->pid == pid) {
 			break;
 		}
+		current_node=current_node->next;
 	}
-	if (process != 0) {
+	if (current_node != 0) {
 		_kill(process);
 	} else {
 		return -1;
@@ -123,5 +135,7 @@ void _sleep(Process *process, uint64_t sleep_time) {
 }
 
 void _kill(Process *process){
+	kprint("killing process ");
+	kprint_hex(process->pid);
 	process->state = ZOMBIE;
 }
