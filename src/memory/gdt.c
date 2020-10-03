@@ -1,4 +1,4 @@
-#include"gdt.h"
+#include"memory/gdt.h"
 #include"kernel_libc/string.h"
 
 TaskStateSegment task_state_segment;

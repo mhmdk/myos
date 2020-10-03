@@ -1,5 +1,5 @@
-#include"keyboard_layout.h"
-#include"keyboard_keycodes.h"
+#include"drivers/keyboard_layout.h"
+#include"drivers/keyboard_keycodes.h"
 #include"drivers/keyboard.h"
 
 uint8_t _is_keypad_key(uint8_t keycode);

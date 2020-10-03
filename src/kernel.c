@@ -1,24 +1,24 @@
 #include<stdint.h>
 #include<stddef.h>
 
+#include "interrupts/idt.h"
+#include "interrupts/interrupts.h"
+#include "interrupts/interrupts.h"
+#include "interrupts/pic.h"
 #include "multiboot.h"
-#include "kmalloc.h"
+#include "memory/kmalloc.h"
 #include"drivers/keyboard.h"
 #include"drivers/vga.h"
 #include"drivers/pit.h"
 #include"drivers/ata.h"
 #include "filesystem/filesystem.h"
-#include"scheduler.h"
+#include"process/scheduler.h"
 #include"process/elf.h"
-#include "gdt.h"
-#include "idt.h"
-#include "interrupts.h"
-#include "pic.h"
-#include"console.h"
+#include "memory/gdt.h"
+#include"drivers/console.h"
 #include"terminal.h"
 #include"common/dllist.h"
 
-#include"interrupts.h"
 
 #if defined(__linux__)
 #error "compiling for linux"

@@ -1,9 +1,10 @@
-#include"scheduler.h"
-#include"console.h"
+#include"process/scheduler.h"
+
+#include "interrupts/interrupts.h"
+#include"drivers/console.h"
 #include"common/dllist.h"
-#include"kmalloc.h"
-#include"interrupts.h"
-#include"gdt.h"
+#include"memory/kmalloc.h"
+#include"memory/gdt.h"
 
 void context_switch(Context **old_context, Context *new_context); //defined in asm
 void _wakeup(Process *process);

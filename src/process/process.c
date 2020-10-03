@@ -1,6 +1,6 @@
 #include"process/process.h"
-#include"kmalloc.h"
-#include"gdt.h"
+#include"memory/kmalloc.h"
+#include"memory/gdt.h"
 
 extern uint32_t trap_return;
 int next_pid = 1;

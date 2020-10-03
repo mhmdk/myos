@@ -1,8 +1,9 @@
-#include"console.h"
-#include"kmalloc.h"
+#include"drivers/console.h"
+
+#include "interrupts/interrupts.h"
+#include"memory/kmalloc.h"
 #include"drivers/vga.h"
 #include"kernel_libc/string.h"
-#include"interrupts.h"
 
 void _hex_format(uint32_t number, char *s);
 void _append_to_console(char *const s);

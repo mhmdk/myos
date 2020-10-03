@@ -1,11 +1,10 @@
-#include"drivers/keyboard.h"
 #include <stdint.h>
-#include"console.h"
-#include"ports.h"
+
+#include"drivers/keyboard.h"
+#include"drivers/console.h"
+#include"drivers/ports.h"
 #include"common/bitmap.h"
-#include"kmalloc.h"
-//TODO this should be removed , it was used for tracing purposes
-#include"keyboard_layout.h"
+#include"memory/kmalloc.h"
 
 BitMap keyboard_state;
 uint8_t numlock = 0;
@@ -76,23 +75,6 @@ void handle_keyboard_interrupt() {
 		} else {
 			keycode = scancode_set1_keycode[scancode];
 		}
-
-//		if (pressed) {
-//			print(&console, "pressed\n");
-//			print_hex(&console, scancode);
-//			print(&console, "\n");
-//			print_hex(&console, keycode);
-//			print(&console, "\n");
-//			char s[2] = "0";
-//			s[0] = character_from_keycode(keycode);
-//			print(&console, s);
-//
-//		} else {
-//			print(&console, "released\n");
-//			print_hex(&console, scancode);
-//			print(&console, "\n");
-//			print_hex(&console, keycode);
-//		}
 
 		if (is_valid_key(keycode)) {
 			if (pressed) {

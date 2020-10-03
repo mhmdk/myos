@@ -1,7 +1,7 @@
 #include "process/elf.h"
 #include"filesystem/filesystem.h"
-#include"kmalloc.h"
-#include"console.h"
+#include"memory/kmalloc.h"
+#include"drivers/console.h"
 
 void _load_elf_header(Elf32_Ehdr *elf_header, File *elf_file);
 void _load_elf_program_headers(Elf32_Phdr *elf_program_headers, File *elf_file,

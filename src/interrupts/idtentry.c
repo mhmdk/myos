@@ -1,5 +1,6 @@
-#include"idtentry.h"
-#include"gdt.h"
+#include "interrupts/idtentry.h"
+
+#include "memory/gdt.h"
 
 static void  _set_offset(IdtEntry* entry, uint32_t offset);
 

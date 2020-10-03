@@ -1,7 +1,8 @@
 #include"filesystem/mbr.h"
 #include "drivers/ata.h"
-#include"console.h"
-#include"kmalloc.h"
+#include"drivers/console.h"
+#include"memory/kmalloc.h"
+
 
 Mbr *mbr;
 void mbr_read() {

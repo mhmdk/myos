@@ -2,7 +2,8 @@
 #define INCLUDE_PROCESS_H_
 
 #include<stdint.h>
-#include"interrupts.h"
+
+#include "interrupts/interrupts.h"
 
 static const uint32_t PROCESS_KERNEL_STACK_SIZE=1024;
 static const uint32_t USER_PROCESS_DEFAULT_STACK_SIZE=1024;

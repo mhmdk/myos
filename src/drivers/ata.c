@@ -1,7 +1,7 @@
 #include"drivers/ata.h"
-#include"ports.h"
-#include"console.h"
-#include"kmalloc.h"
+#include"drivers/ports.h"
+#include"drivers/console.h"
+#include"memory/kmalloc.h"
 
 // http://www.t13.org/documents/UploadedDocuments/project/d1153r18-ATA-ATAPI-4.pdf
 // see parallel ata page on wikipedia for other standard versions links

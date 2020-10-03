@@ -1,5 +1,5 @@
-#include"pic.h"
-#include"ports.h"
+#include "interrupts/pic.h"
+#include"drivers/ports.h"
 
 // https://pdos.csail.mit.edu/6.828/2005/readings/hardware/8259A.pdf
 // https://wiki.osdev.org/PIC#Programming_the_PIC_chips

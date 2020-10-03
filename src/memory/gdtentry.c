@@ -1,4 +1,4 @@
-#include"gdtentry.h"
+#include"memory/gdtentry.h"
 
 static void  _set_base(GdtEntry* entry, uint32_t base);
 static void  _set_limit(GdtEntry* entry, uint32_t limit);

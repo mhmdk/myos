@@ -2,7 +2,8 @@
 #define __IDT_H
 
 #include<stdint.h>
-#include"idtentry.h"
+
+#include "idtentry.h"
 
 #define IDT_SIZE 256
 typedef struct __attribute__((__packed__)) {

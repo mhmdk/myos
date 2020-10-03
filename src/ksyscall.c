@@ -1,6 +1,6 @@
 #include"ksyscall.h"
-#include"console.h"
-#include"scheduler.h"
+#include"drivers/console.h"
+#include"process/scheduler.h"
 
 int ksyscall(uint32_t call_number, uint32_t args[]) {
 	switch (call_number) {

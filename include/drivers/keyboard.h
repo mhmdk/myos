@@ -2,7 +2,7 @@
 #define _DRIVERS_KEYBOARD_H
 
 #include <stdint.h>
-#include"keyboard_keycodes.h"
+#include"drivers/keyboard_keycodes.h"
 
 void init_keyboard();
 void handle_keyboard_interrupt();

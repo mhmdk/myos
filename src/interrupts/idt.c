@@ -1,5 +1,5 @@
-#include"idt.h"
-#include"interrupts.h"
+#include "interrupts/idt.h"
+#include "interrupts/interrupts.h"
 
 void __fill_trap_gate(IdtEntry*, uint32_t, uint8_t flags);
 void __fill_interrupt_gate(IdtEntry*, uint32_t, uint8_t flags);

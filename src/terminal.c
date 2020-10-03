@@ -1,15 +1,15 @@
 #include"terminal.h"
-#include"keyboard_layout.h"
+#include"drivers/keyboard_layout.h"
 #include"drivers/keyboard.h"
-#include"console.h"
+#include"drivers/console.h"
 #include"kernel_libc/string.h"
 #include"kernel_libc/stdlib.h"
 #include"common/stringutils.h"
 #include"common/dllist.h"
 #include"filesystem/filesystem.h"
-#include"kmalloc.h"
+#include"memory/kmalloc.h"
 #include"process/elf.h"
-#include"scheduler.h"
+#include"process/scheduler.h"
 
 static const int MAX_INPUT_SIZE = 100;
 void terminal_main() {

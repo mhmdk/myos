@@ -1,5 +1,5 @@
-#include "kmalloc.h"
-#include"console.h"
+#include "memory/kmalloc.h"
+#include"drivers/console.h"
 #include"kernel_libc/string.h"
 #include"common/bitmap.h"
 

@@ -1,8 +1,8 @@
 #include"kernel_libc/stdio.h"
 #include"kernel_libc/string.h"
-#include"keyboard_layout.h"
+#include"drivers/keyboard_layout.h"
 #include"drivers/keyboard.h"
-#include"console.h"
+#include"drivers/console.h"
 
 
 char* gets(char *s) {
