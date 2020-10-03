@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-variable"
+
 // http://www.osdever.net/FreeVGA/vga/extreg.htm#3CCR3C2W
 static uint16_t MISCELLANOUS_OUTPUT_REGISTER_READ_PORT = 0x3CC;
 static uint16_t MISCELLANOUS_OUTPUT_REGISTER_WRITE_PORT = 0x3C2;
@@ -18,6 +21,7 @@ static uint8_t CURSOR_DISABLE_BIT = 1 << 5;
 static uint16_t CURSOR_LOCATION_HIGH_REGISTER_INDEX = 0x0E;
 static uint16_t CURSOR_LOCATION_LOW_REGISTER_INDEX = 0x0F;
 
+#pragma GCC diagnostic pop
 
 static uint16_t *const SCREEN_BUFFER = (uint16_t*) 0xB8000;
 static uint32_t const SCREEN_HIGHT = 25;
