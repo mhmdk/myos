@@ -1,11 +1,12 @@
 This is a toy kernel I wrote in order to learn about operating system implementation.
 
 
-##Demo##
+## Demo ##
+
 ![Demo](demo.gif)
 
 
-## Specifications##
+## Specifications ##
 + Preemptive Round-robin scheduler
 + ATA hard disk driver 
 + FAT32 filesystem support
@@ -14,29 +15,29 @@ This is a toy kernel I wrote in order to learn about operating system implementa
 + Support for user mode and system calls
 
 
-##Build Prerequisites##
+## Build Prerequisites ##
 A cross compiler , see https://wiki.osdev.org/GCC_Cross-Compiler.  
 Once the cross compiler is built, set the CC variable in makefile to the cross compiler path.  
 
-##Build The kernel##
+## Build The kernel ##
 	cd /path/to/source/directory
 	make install
 	
 this should build and copy kernel.elf to the top directory
 
-## Run from command line##
+## Run from command line ##
 Install qemu emulator, and run:   
 `qemu-system-x86_64 -machine pc -kernel kernel.elf [-hda hda.img]`  
 where hda.img is a disk image file that the emulator will provide as a hard disk, see [below](#Making-a-partitioned-image-for-testing)  
 
-## Debugging from command line##
+## Debugging from command line ##
 	qemu-system-x86_64 -machine pc -kernel kernel.elf -s -S [-hda hda.img]
 	#on  another terminal :
 	gdb kernel.elf
 	set arch i386:x86-64
 	target remote localhost:1234 
 
-## Setting up the Project In eclipse##
+## Setting up the Project In eclipse ##
 
 ### 1.  fix compiler errors ###
 * project-->properties-->c/c++ build--> untick "generate makefile automatically ; and specify build location
@@ -84,7 +85,7 @@ to use the disk from host machine:
 	# to detach device:
 	sudo losetup -d /dev/loop0 
 
-## Testing userspace apps##
+## Testing userspace apps ##
 userspace programs can be built with the same cross compiler and linked against syscall wrappers for this os, like [here](https://github.com/mhmdk/myos-apps).  
 an easy way to test the programs is to copy them to the disk image as  [above](#Making-a-partitioned-image-for-testing), and from the terminal issue "exec drvn/path/to/executable"
 
