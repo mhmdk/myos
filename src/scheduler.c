@@ -40,7 +40,7 @@ void schedule() {
 		//and when the timer interrupt calls yield , the timer ISR in the context of previous process is not finished yet
 		//so we have to enable interrupts again, otherwise the next process will never be interrupted
 		enable_interrupts();
-
+		//kprint("enabled interupts \n");
 		if (current_node == 0) {
 			current_node = process_list;
 		}

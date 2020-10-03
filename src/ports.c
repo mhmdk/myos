@@ -8,7 +8,7 @@ void outb(uint16_t port, uint8_t val) {
 	 * The  outb  %al, %dx  encoding is the only option for all other cases.
 	 * %1 expands to %dx because  port  is a uint16_t.  %w1 could be used if we had the port number a wider C type */
 }
-outw(uint16_t port, uint16_t val) {
+void outw(uint16_t port, uint16_t val) {
 	__asm__ volatile("outw %0, %1" : : "a" (val), "Nd" (port));
 }
 

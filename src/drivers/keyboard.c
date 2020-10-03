@@ -29,10 +29,10 @@ void init_keyboard() {
 	outb(ps2_controller_command_port, 0xAD);		//disable first PS/2 port
 	outb(ps2_controller_command_port, 0xA7);		//disable  second PS/2 port
 
-	uint8_t ans = inb(ps2_controller_data_port);		//flush output port
+	inb(ps2_controller_data_port);		//flush output port
 
 	outb(ps2_controller_command_port, 0xAA);
-	ans = inb(ps2_controller_data_port); //should be 0x55
+	inb(ps2_controller_data_port); //should be 0x55
 
 	outb(ps2_controller_command_port, 0x20); //read the state
 	uint8_t state = inb(ps2_controller_data_port);
@@ -43,11 +43,11 @@ void init_keyboard() {
 	outb(ps2_controller_data_port, state);
 
 	_command_to_keyboard(0xF4); //enable scanning
-	ans = inb(ps2_controller_data_port); //0xFA (ACK) or 0xFE (Resend)
+	inb(ps2_controller_data_port); //0xFA (ACK) or 0xFE (Resend)
 
 	_command_to_keyboard(0xf0); //set keyboard set
 	_command_to_keyboard(0x01);
-	ans = inb(ps2_controller_data_port); //0xFA (ACK) or 0xFE (Resend)
+	inb(ps2_controller_data_port); //0xFA (ACK) or 0xFE (Resend)
 
 	outb(ps2_controller_command_port, 0xAE); //enable  first PS/2 port
 

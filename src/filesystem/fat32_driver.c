@@ -192,7 +192,7 @@ int _find_free_cluster(FAT32FileSystem *filesystem) {
 	uint32_t *clusters = (uint32_t*) kmalloc(BYTES_PER_SECTOR);
 
 	while (current_sector <= fat_last_sector) {
-		ata_read(clusters, 0, current_sector, BYTES_PER_SECTOR);
+		ata_read((char*)clusters, 0, current_sector, BYTES_PER_SECTOR);
 		for (int cluster_index = 0; cluster_index < entries_per_sector;
 				cluster_index++) {
 			if (clusters[cluster_index] == 0) {

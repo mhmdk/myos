@@ -4,7 +4,6 @@
 #include"common/bitmap.h"
 
 extern uint32_t kmalloc_pool_start;
-extern uint32_t _start;
 
 #define CHUNK_SIZE  32
 //also defined boot.asm
@@ -64,8 +63,7 @@ void* kmalloc(uint32_t size) {
 		return header + 1;
 
 	} else {
-		kprint("kmalloc failed");
-		panic();
+		kprint("ERROR: kmalloc failed");
 		return 0;
 	}
 }

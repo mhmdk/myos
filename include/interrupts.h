@@ -50,7 +50,9 @@ typedef struct {
 
 void enable_interrupts();
 void disable_interrupts();
+int interrupts_enabled();
+uint32_t get_flags();
 void handle_interrupt(TrapFrame *trap_frame);
-
+void panic(TrapFrame *trap_frame);
 
 #endif

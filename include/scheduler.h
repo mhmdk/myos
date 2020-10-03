@@ -13,7 +13,7 @@ void scheduler_add_process(Process *process);
 void ksleep(uint64_t sleep_time);
 int kgetpid();
 void kexit();
-int kkill(pid);
+int kkill(int pid);
 
 
 

@@ -4,7 +4,6 @@
 #include"kernel_libc/string.h"
 #include"interrupts.h"
 
-
 void _hex_format(uint32_t number, char *s);
 void _append_to_console(char *const s);
 void _remove_char_from_console();
@@ -36,10 +35,15 @@ void init_console() {
 }
 
 void kprint(char *const s) {
-	disable_interrupts();
+	int interrupts_were_enabled = interrupts_enabled();
+	if (interrupts_were_enabled) {
+		disable_interrupts();
+	}
 	_append_to_console(s);
 	_copy_to_screen();
-	enable_interrupts();
+	if (interrupts_were_enabled) {
+		enable_interrupts();
+	}
 }
 
 void erase_char() {
@@ -200,10 +204,10 @@ void _remove_char_from_console() {
 	active_console->output_column--;
 	if (active_console->output_column < 0) {
 		//should check if beginning instead
-		if (active_console->used_rows> 0) {
+		if (active_console->used_rows > 0) {
 			active_console->output_row--;
-			if(active_console->output_row<0){
-				active_console->output_row=active_console->number_of_rows-1;
+			if (active_console->output_row < 0) {
+				active_console->output_row = active_console->number_of_rows - 1;
 			}
 			active_console->used_rows--;
 			//or   the string length of the previous row

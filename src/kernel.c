@@ -18,6 +18,8 @@
 #include"terminal.h"
 #include"common/dllist.h"
 
+#include"interrupts.h"
+
 #if defined(__linux__)
 #error "compiling for linux"
 #endif 
@@ -30,6 +32,7 @@ void print_memory_map(multiboot_info_t *multibootinfo);
 
 void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 
+	disable_interrupts();
 	GlobalDescriptorTable gdt;
 	fill_gdt(&gdt);
 	load_gdt(&gdt);
@@ -57,10 +60,6 @@ void kernel_main(multiboot_uint32_t magic, multiboot_info_t *multibootinfo) {
 
 	Process *process_terminal = create_process((uint32_t) terminal_main);
 	init_scheduler(process_terminal);
-//	Process *hello = execute_elf("drv0/HELLO");
-//	Process *bg_proc = execute_elf("drv0/BGPROC");
-//	scheduler_add_process(hello);
-//	scheduler_add_process(bg_proc);
 	schedule();
 
 	while (1) {

@@ -19,12 +19,13 @@ void handle_interrupt(TrapFrame *trap_frame) {
 		acknowledge_interupt_from_master();
 		enum ProcessState current_process_state =
 				scheduler_current_process()->state;
-		if (current_process_state == RUNNING
-				|| current_process_state == READY) {
+		if (current_process_state == RUNNING) {
 			yield();
 		} else if (current_process_state == ZOMBIE) {
 			// example : in case command :kill {terminal_pid}  is issued
 			kexit();
+		}else if (current_process_state == READY) {
+			//do nothing,happens only whenscheduler itself is interrupted
 		} else {
 			kprint(
 					"timer interrupt occured and current process is in an illegal state\n");
@@ -67,6 +68,12 @@ void handle_interrupt(TrapFrame *trap_frame) {
 		acknowledge_interupt_from_slave();
 	}
 }
+
+int interrupts_enabled() {
+	const uint32_t IF = 1<<9;
+	return get_flags() & IF;
+}
+
 void enable_interrupts() {
 	__asm__ ("sti");
 }
@@ -77,6 +84,15 @@ void disable_interrupts() {
 uint64_t get_time_since_boot() {
 	return time_since_boot;
 }
+
+uint32_t get_flags() {
+	uint32_t flags = 0;
+	__asm__ ("pushfl\n\t"
+			"mov (%%esp), %0\n\t"
+			"popfl":"=r"(flags));
+	return flags;
+}
+
 
 void panic(TrapFrame *trap_frame) {
 	kprint("PANIC!!\n");

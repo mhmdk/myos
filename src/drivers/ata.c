@@ -221,10 +221,8 @@ void _read_identify_output(ata_drive *drive) {
 		uint16_t data = inw(drive->io_base_port + DATA_REGISTER_OFFSET);
 		if (i == 83) {
 			//uint16_t 83: Bit 10 is set if the drive supports LBA48 mode.
-			//drive->lb48=data&1<<10;
-			drive->lb48 = 0;
+			drive->lb48=data&1<<10;
 		}
-		//print_hex(data);
 	}
 }
 
