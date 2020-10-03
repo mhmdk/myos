@@ -137,7 +137,6 @@ void _sleep(Process *process, uint64_t sleep_time) {
 }
 
 void _kill(Process *process){
-	kprint("killing process ");
 	kprint_hex(process->pid);
 	process->state = ZOMBIE;
 }

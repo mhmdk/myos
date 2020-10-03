@@ -93,15 +93,13 @@ void process_input(char user_input[]) {
 	} else if (strcmp(command, "exec") == 0) {
 		next_token(arg1, user_input, ' ');
 		Process *p = execute_elf(arg1);
-		scheduler_add_process(p);
-
+		if(p!=0){
+			scheduler_add_process(p);
+		}
 	} else if (strcmp(command, "kill") == 0) {
 		next_token(arg1, user_input, ' ');
 		int pid = atoi(arg1);
-		kprint("arg1 is ");
-		kprint_hex(pid);
 		kkill(pid);
-
 	} else {
 		kprint("unknown command ");
 		kprint(command);
